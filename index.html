@@ -1,0 +1,3114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+  <title>ApexCube Cosmic Lab · 巅峰级寰宇魔方实验室</title>
+  <meta name="description" content="一个为魔方职业选手与极客打造的巅峰 3D 魔方模拟器：高档宇宙美学、WCA 计时器、PB Ao5/Ao12 成绩看板、自适应无感按键队列、3D 贴纸手势射线拾取层旋转、Kociemba 智能求解与分步发光箭头教学。">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Outfit:wght@300;400;600;800&family=Noto+Sans+SC:wght@300;400;700&display=swap');
+
+    :root {
+      --bg-dark: #030712;
+      --bg-space: #070b19;
+      --glass-panel: rgba(10, 15, 36, 0.65);
+      --glass-panel-hover: rgba(16, 24, 54, 0.75);
+      --border-glow: rgba(0, 229, 160, 0.15);
+      --border-light: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #00e5a0;
+      --accent-blue: #0984E3;
+      --accent-purple: #8b5cf6;
+      --accent-rose: #ff3d71;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --shadow-premium: 0 25px 70px rgba(0, 0, 0, 0.6);
+      --neon-glow: 0 0 15px rgba(0, 229, 160, 0.4);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+    }
+
+    /* 炫酷宇宙极光与格栅背景 */
+    .cosmic-bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.22), transparent 45%),
+                  radial-gradient(circle at 90% 80%, rgba(0, 229, 160, 0.14), transparent 40%),
+                  linear-gradient(135deg, var(--bg-dark), var(--bg-space));
+      z-index: -2;
+    }
+
+    .cosmic-grid {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 229, 160, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 160, 0.02) 1px, transparent 1px);
+      background-size: 80px 80px;
+      background-position: center center;
+      transform: perspective(500px) rotateX(60deg) translateY(-200px) translateZ(-100px);
+      transform-origin: top center;
+      opacity: 0.8;
+      z-index: -1;
+      pointer-events: none;
+      animation: gridScroll 20s linear infinite;
+    }
+
+    @keyframes gridScroll {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 160px; }
+    }
+
+    #app-container {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+
+    #stage {
+      position: relative;
+      min-width: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #canvas-viewport {
+      position: absolute;
+      inset: 0;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    #canvas-viewport canvas {
+      touch-action: none;
+      display: block;
+    }
+
+    #canvas-viewport:active {
+      cursor: grabbing;
+    }
+
+    /* 全息磨砂玻璃面板样式 */
+    .glass-card {
+      background: var(--glass-panel);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid var(--border-light);
+      border-radius: 24px;
+      box-shadow: var(--shadow-premium);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      background: var(--glass-panel-hover);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    /* 顶部仪表盘 */
+    .topbar {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .brand-logo {
+      pointer-events: auto;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand-logo h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #fff, var(--accent-cyan), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-logo p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .top-stats {
+      display: flex;
+      gap: 12px;
+      pointer-events: auto;
+    }
+
+    .stat-pill {
+      padding: 12px 18px;
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .stat-pill b {
+      display: block;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      line-height: 1.1;
+      text-shadow: 0 0 10px rgba(0, 229, 160, 0.2);
+    }
+
+    .stat-pill span {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+    }
+
+    /* WCA 官方打乱展示 */
+    .scramble-banner {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      max-width: 80%;
+      text-align: center;
+      z-index: 9;
+      pointer-events: auto;
+    }
+
+    .scramble-banner .title {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .scramble-banner .formula {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      letter-spacing: 1px;
+      word-wrap: break-word;
+      text-shadow: 0 0 8px rgba(0, 229, 160, 0.15);
+    }
+
+    /* 侧边功能栏 */
+    aside {
+      height: 100vh;
+      overflow-y: auto;
+      padding: 24px;
+      border-left: 1px solid var(--border-light);
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.65), rgba(2, 6, 23, 0.85));
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      box-shadow: -15px 0 50px rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+
+    aside::-webkit-scrollbar {
+      width: 6px;
+    }
+    aside::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 99px;
+    }
+
+    .panel {
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .panel h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel h2 em {
+      font-style: normal;
+      font-size: 0.7rem;
+      color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .row + .row {
+      margin-top: 12px;
+    }
+
+    /* 高级表单及按钮 */
+    button, select, input, textarea {
+      font-family: inherit;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    select, input, textarea {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(3, 7, 18, 0.6);
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 229, 160, 0.15);
+    }
+
+    select {
+      height: 38px;
+      padding: 0 16px;
+      cursor: pointer;
+    }
+
+    input[type="number"] {
+      width: 70px;
+      height: 38px;
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 12px;
+      line-height: 1.5;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.85rem;
+      resize: vertical;
+    }
+
+    button {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.03);
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 229, 160, 0.4);
+      background: rgba(0, 229, 160, 0.08);
+      box-shadow: 0 4px 15px rgba(0, 229, 160, 0.1);
+      color: var(--accent-cyan);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border: none;
+      color: #fff;
+    }
+
+    button.primary:hover {
+      background: linear-gradient(135deg, #a78bfa, #2980b9);
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+      color: #fff;
+    }
+
+    button.success {
+      background: rgba(0, 229, 160, 0.12);
+      border-color: rgba(0, 229, 160, 0.35);
+      color: var(--accent-cyan);
+    }
+
+    button.success:hover {
+      background: var(--accent-cyan);
+      color: var(--bg-dark);
+      box-shadow: 0 4px 20px rgba(0, 229, 160, 0.35);
+    }
+
+    button.danger {
+      background: rgba(255, 61, 113, 0.12);
+      border-color: rgba(255, 61, 113, 0.35);
+      color: var(--accent-rose);
+    }
+
+    button.danger:hover {
+      background: var(--accent-rose);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(255, 61, 113, 0.35);
+    }
+
+    button.ghost {
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+    }
+
+    button.ghost.active {
+      background: rgba(0, 229, 160, 0.1);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: var(--neon-glow);
+    }
+
+    /* 按钮组网格 */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+
+    .btn-grid button {
+      padding: 8px 0;
+      min-width: 0;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+    }
+
+    .btn-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .btn-grid.disabled button {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .seg-btns {
+      display: flex;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 4px;
+      border-radius: 14px;
+      border: 1px solid var(--border-light);
+    }
+
+    .seg-btns button {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 6px 0;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .seg-btns button.active {
+      background: linear-gradient(135deg, rgba(0, 229, 160, 0.15), rgba(9, 132, 227, 0.15));
+      border: 1px solid rgba(0, 229, 160, 0.25);
+      color: var(--accent-cyan);
+    }
+
+    /* 成绩历史与看板 */
+    .history-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 80px;
+      overflow-y: auto;
+      padding: 6px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+    }
+
+    .history-tag {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-light);
+      color: var(--text-muted);
+    }
+
+    .history-tag.solving {
+      background: rgba(0, 229, 160, 0.12);
+      border-color: rgba(0, 229, 160, 0.3);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 8px rgba(0, 229, 160, 0.2);
+    }
+
+    .history-tag.guide-active {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.4);
+      color: #a78bfa;
+    }
+
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .stat-box {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 14px;
+      border: 1px solid var(--border-light);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-box .lbl {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+    }
+
+    .stat-box .val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-box .val.highlight {
+      color: var(--accent-cyan);
+    }
+
+    /* WCA 计时器全屏 UI */
+    .timer-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .timer-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .timer-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 7.5rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+      transition: color 0.15s ease;
+    }
+
+    .timer-number.waiting {
+      color: var(--accent-rose);
+      text-shadow: 0 0 35px rgba(255, 61, 113, 0.4);
+    }
+
+    .timer-number.ready {
+      color: var(--accent-cyan);
+      text-shadow: 0 0 35px rgba(0, 229, 160, 0.6);
+    }
+
+    .timer-tip {
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-top: 24px;
+      text-transform: uppercase;
+    }
+
+    /* 空格键触发指引环 */
+    .timer-ring {
+      width: 320px;
+      height: 320px;
+      border: 3px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .timer-number.ready + .timer-ring {
+      border-color: var(--accent-cyan);
+      border-style: solid;
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(0, 229, 160, 0.1);
+    }
+
+    .timer-number.waiting + .timer-ring {
+      border-color: var(--accent-rose);
+      border-style: solid;
+      transform: scale(0.98);
+      box-shadow: 0 0 40px rgba(255, 61, 113, 0.1);
+    }
+
+    /* 全局 Toast */
+    .toast {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 1000;
+      padding: 14px 28px;
+      border-radius: 16px;
+      background: var(--glass-panel);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--accent-cyan);
+      box-shadow: var(--shadow-premium), var(--neon-glow);
+      color: var(--accent-cyan);
+      font-family: 'Orbitron', 'Noto Sans SC', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 键盘和快捷键指引 */
+    .shortcut-hint {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      z-index: 9;
+      pointer-events: auto;
+      max-width: 580px;
+      padding: 12px 18px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .shortcut-hint strong {
+      color: #fff;
+    }
+
+    .shortcut-hint .k {
+      font-family: monospace;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 5px;
+      padding: 1px 5px;
+      color: #fff;
+      margin: 0 2px;
+    }
+
+    /* 阶数隐藏组件 */
+    .sec-3x3 { display: block; }
+    .sec-4x4 { display: none; }
+    .sec-5x5 { display: none; }
+
+    /* 全屏进度条 */
+    .progress-bar-top {
+      position: absolute;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+      z-index: 9999;
+      width: 0%;
+      box-shadow: var(--neon-glow);
+      transition: width 0.1s ease;
+    }
+
+    /* 响应式适配 */
+    @media (max-width: 1024px) {
+      #app-container {
+        grid-template-columns: 1fr;
+      }
+      aside {
+        position: fixed;
+        right: 0; top: 0; bottom: 0;
+        width: 380px;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+      }
+      aside.open {
+        transform: translateX(0);
+      }
+      .mobile-menu-btn {
+        display: flex !important;
+      }
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      position: absolute;
+      right: 24px;
+      top: 24px;
+      z-index: 100;
+      pointer-events: auto;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-premium);
+    }
+
+    .score-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-size: 0.75rem;
+    }
+    .score-item span:first-child {
+      color: var(--text-muted);
+    }
+    .score-item span:last-child {
+      font-family: 'Orbitron', monospace;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* 发光引导公式面板 */
+    .guide-banner {
+      position: absolute;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 16px 24px;
+      min-width: 320px;
+      text-align: center;
+      z-index: 10;
+      display: none;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+    }
+    .guide-banner .guide-title {
+      font-size: 0.7rem;
+      color: #a78bfa;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .guide-banner .steps {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cosmic-bg"></div>
+  <div class="cosmic-grid"></div>
+
+  <!-- 全屏智能还原进度 -->
+  <div class="progress-bar-top" id="solveProgress"></div>
+
+  <!-- WCA 计时器全屏层 -->
+  <div class="timer-overlay" id="timerOverlay">
+    <div class="timer-number" id="timerBigNumber">0.00</div>
+    <div class="timer-ring"></div>
+    <div class="timer-tip" id="timerOverlayTip">按住 [空格键] 准备</div>
+  </div>
+
+  <!-- 全局 Toast 提示 -->
+  <div class="toast" id="globalToast">APEX CUBE READY</div>
+
+  <div id="app-container">
+    
+    <!-- 3D 渲染舞台区 -->
+    <main id="stage">
+      <button class="mobile-menu-btn" id="asideToggle" onclick="toggleAside()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+
+      <!-- 顶栏仪表盘 -->
+      <div class="topbar">
+        <div class="brand-logo glass-card">
+          <h1><span>🪐</span>ApexCube Lab</h1>
+          <p>巅峰寰宇 3D 智能魔方模拟器 · 2026</p>
+        </div>
+        <div class="top-stats">
+          <div class="stat-pill glass-card">
+            <b id="moveCount">0</b>
+            <span>总步数</span>
+          </div>
+          <div class="stat-pill glass-card">
+            <b id="cubeOrderText">3×3</b>
+            <span>当前阶数</span>
+          </div>
+          <div class="stat-pill glass-card">
+            <b id="cubeSolvedText">已复原</b>
+            <span>魔方状态</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- WCA 官方打乱展示 -->
+      <div class="scramble-banner glass-card" id="wcaScrambleBanner" style="display: none;">
+        <div class="title">WCA 官方 3×3 打乱公式</div>
+        <div class="formula" id="wcaScrambleFormula">Generating...</div>
+      </div>
+
+      <!-- 分步引导提示栏 -->
+      <div class="guide-banner glass-card" id="solveGuideBanner">
+        <div class="guide-title">智能分步教学 · 跟着高亮指示拧动</div>
+        <div class="steps" id="solveGuideSteps"></div>
+      </div>
+
+      <!-- Three.js 视口 -->
+      <div id="canvas-viewport"></div>
+
+      <!-- 快捷键指南 -->
+      <div class="shortcut-hint glass-card">
+        <strong>键盘速拧：</strong><span class="k">U</span>/<span class="k">D</span>/<span class="k">L</span>/<span class="k">R</span>/<span class="k">F</span>/<span class="k">B</span> 转外层 · <span class="k">Shift</span>+键转逆时针 · <span class="k">Alt</span>+键转内层 · <span class="k">Ctrl</span>+键宽转 · <span class="k">Ctrl</span>+<span class="k">Alt</span>+键转三层 (仅5阶) · <span class="k">M</span>/<span class="k">E</span>/<span class="k">S</span> 转中层 · <span class="k">X</span>/<span class="k">Y</span>/<span class="k">Z</span> 整体旋转 · 长按 <span class="k">Space</span> 启动计时器 · <span class="k">Esc</span> 取消计时。可在魔方贴纸上**直接用鼠标/手指拖拽拧动**。
+      </div>
+    </main>
+
+    <!-- 侧边控制台 -->
+    <aside id="controlPanel">
+      
+      <!-- 魔方核心与阶数 -->
+      <section class="panel glass-card">
+        <h2>核心控制 <em>CORE OPTIONS</em></h2>
+        <div class="row">
+          <select id="cubeOrderSelect" onchange="changeCubeOrder(this.value)">
+            <option value="3" selected>3 × 3 (竞速级)</option>
+            <option value="4">4 × 4 (大师级)</option>
+            <option value="5">5 × 5 (极客级)</option>
+          </select>
+          <button class="danger" onclick="instantResetCube()">物理复原</button>
+          <button class="success" onclick="triggerSmartSolve()">智能还原</button>
+        </div>
+        <div class="row">
+          <button onclick="scrambleCube()">随机打乱</button>
+          <button onclick="undoLastMove()">撤回上一步</button>
+          <button class="ghost" id="wcaSwitchBtn" onclick="toggleWcaMode()">竞速打乱模式：关</button>
+        </div>
+      </section>
+
+      <!-- 竞速计时数据看板 -->
+      <section class="panel glass-card">
+        <h2>竞速计时成绩 <em>WCA TIMER</em></h2>
+        <div class="row">
+          <button class="primary" style="width:100%; height: 42px;" onclick="focusTimerMode()">启动计时模式 (长按空格键)</button>
+        </div>
+        <div class="stats-container">
+          <div class="stat-box">
+            <div class="lbl">个人最佳 (PB)</div>
+            <div class="val highlight" id="pbDisplay">--</div>
+          </div>
+          <div class="stat-box">
+            <div class="lbl">手速峰值 (TPS)</div>
+            <div class="val highlight" id="tpsDisplay">--</div>
+          </div>
+          <div class="stat-box">
+            <div class="lbl">近 5 次平均 (Ao5)</div>
+            <div class="val" id="ao5Display">--</div>
+          </div>
+          <div class="stat-box">
+            <div class="lbl">近 12 次平均 (Ao12)</div>
+            <div class="val" id="ao12Display">--</div>
+          </div>
+        </div>
+        <div style="margin-top: 14px;">
+          <div class="lbl" style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px;">最近成绩单：</div>
+          <div id="scoresHistoryList" style="max-height: 100px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 4px;">
+            <div style="font-size: 0.7rem; color: var(--text-muted); padding: 8px; text-align: center;">暂无速拧记录</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 物理手感与魔法粒子 -->
+      <section class="panel glass-card">
+        <h2>物理手感与魔法 <em>FEEL & SPELLS</em></h2>
+        <div class="row" style="justify-content: space-between;">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">旋转动画速度：</span>
+          <div class="seg-btns" id="speedSelector">
+            <button onclick="changeAnimSpeed(0, this)">×0.5</button>
+            <button class="active" onclick="changeAnimSpeed(1, this)">×1.0</button>
+            <button onclick="changeAnimSpeed(2, this)">×2.0</button>
+            <button onclick="changeAnimSpeed(3, this)">×4.0</button>
+            <button onclick="changeAnimSpeed(4, this)">即时</button>
+          </div>
+        </div>
+        <div class="row" style="margin-top: 12px;">
+          <button id="floatSpellBtn" class="ghost active" onclick="toggleCubeFloat()">星河漂浮：开</button>
+          <button id="particleSpellBtn" class="ghost active" onclick="toggleParticleSpell()">星尘爆发：开</button>
+        </div>
+      </section>
+
+      <!-- 公式咒语 -->
+      <section class="panel glass-card">
+        <h2>公式咒语 <em>ALGORITHM CODE</em></h2>
+        <textarea id="algorithmInput" placeholder="输入标准魔方公式，如: R U R' U'  (支持 Uw, M, X, Y' 等)"></textarea>
+        <div class="row">
+          <button class="primary" onclick="castAlgorithm()">施放公式</button>
+          <button onclick="invertAlgorithmText()">公式镜像翻转</button>
+          <button onclick="copyHistoryToClipboard()">复制历史公式</button>
+          <button onclick="clearHistory()">清空历史</button>
+        </div>
+      </section>
+
+      <!-- 外层标准旋转 -->
+      <section class="panel glass-card">
+        <h2>外层标准层旋转 <em>OUTER LAYER MOVES</em></h2>
+        <div class="btn-grid">
+          <button onclick="triggerMoveBtn('U')">U</button>
+          <button onclick="triggerMoveBtn('D')">D</button>
+          <button onclick="triggerMoveBtn('L')">L</button>
+          <button onclick="triggerMoveBtn('R')">R</button>
+          <button onclick="triggerMoveBtn('F')">F</button>
+          <button onclick="triggerMoveBtn('B')">B</button>
+        </div>
+        <div class="btn-grid" style="margin-top: 8px;">
+          <button onclick="triggerMoveBtn('U\'')">U'</button>
+          <button onclick="triggerMoveBtn('D\'')">D'</button>
+          <button onclick="triggerMoveBtn('L\'')">L'</button>
+          <button onclick="triggerMoveBtn('R\'')">R'</button>
+          <button onclick="triggerMoveBtn('F\'')">F'</button>
+          <button onclick="triggerMoveBtn('B\'')">B'</button>
+        </div>
+      </section>
+
+      <!-- 高级旋转 (内层/中层/整体) -->
+      <section class="panel glass-card">
+        <h2>高阶层旋转 <em>ADVANCED MOVES</em></h2>
+        
+        <!-- 仅在 4/5 阶有效 -->
+        <div class="sec-4x4 sec-5x5">
+          <div class="lbl" style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">内层单层旋转</div>
+          <div class="btn-grid">
+            <button onclick="triggerMoveBtn('u')">u</button>
+            <button onclick="triggerMoveBtn('d')">d</button>
+            <button onclick="triggerMoveBtn('l')">l</button>
+            <button onclick="triggerMoveBtn('r')">r</button>
+            <button onclick="triggerMoveBtn('f')">f</button>
+            <button onclick="triggerMoveBtn('b')">b</button>
+          </div>
+          <div class="btn-grid" style="margin-top: 6px;">
+            <button onclick="triggerMoveBtn('u\'')">u'</button>
+            <button onclick="triggerMoveBtn('d\'')">d'</button>
+            <button onclick="triggerMoveBtn('l\'')">l'</button>
+            <button onclick="triggerMoveBtn('r\'')">r'</button>
+            <button onclick="triggerMoveBtn('f\'')">f'</button>
+            <button onclick="triggerMoveBtn('b\'')">b'</button>
+          </div>
+
+          <div class="divider" style="height: 1px; background: var(--border-light); margin: 12px 0;"></div>
+          <div class="lbl" style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">宽旋转 (双层)</div>
+          <div class="btn-grid">
+            <button onclick="triggerMoveBtn('Uw')">Uw</button>
+            <button onclick="triggerMoveBtn('Dw')">Dw</button>
+            <button onclick="triggerMoveBtn('Lw')">Lw</button>
+            <button onclick="triggerMoveBtn('Rw')">Rw</button>
+            <button onclick="triggerMoveBtn('Fw')">Fw</button>
+            <button onclick="triggerMoveBtn('Bw')">Bw</button>
+          </div>
+          <div class="btn-grid" style="margin-top: 6px;">
+            <button onclick="triggerMoveBtn('Uw\'')">Uw'</button>
+            <button onclick="triggerMoveBtn('Dw\'')">Dw'</button>
+            <button onclick="triggerMoveBtn('Lw\'')">Lw'</button>
+            <button onclick="triggerMoveBtn('Rw\'')">Rw'</button>
+            <button onclick="triggerMoveBtn('Fw\'')">Fw'</button>
+            <button onclick="triggerMoveBtn('Bw\'')">Bw'</button>
+          </div>
+        </div>
+
+        <!-- 仅在 5 阶有效 -->
+        <div class="sec-5x5">
+          <div class="divider" style="height: 1px; background: var(--border-light); margin: 12px 0;"></div>
+          <div class="lbl" style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">三层宽旋转 (仅5阶)</div>
+          <div class="btn-grid">
+            <button onclick="triggerMoveBtn('Uw3')">Uw3</button>
+            <button onclick="triggerMoveBtn('Dw3')">Dw3</button>
+            <button onclick="triggerMoveBtn('Lw3')">Lw3</button>
+            <button onclick="triggerMoveBtn('Rw3')">Rw3</button>
+            <button onclick="triggerMoveBtn('Fw3')">Fw3</button>
+            <button onclick="triggerMoveBtn('Bw3')">Bw3</button>
+          </div>
+          <div class="btn-grid" style="margin-top: 6px;">
+            <button onclick="triggerMoveBtn('Uw3\'')">Uw3'</button>
+            <button onclick="triggerMoveBtn('Dw3\'')">Dw3'</button>
+            <button onclick="triggerMoveBtn('Lw3\'')">Lw3'</button>
+            <button onclick="triggerMoveBtn('Rw3\'')">Rw3'</button>
+            <button onclick="triggerMoveBtn('Fw3\'')">Fw3'</button>
+            <button onclick="triggerMoveBtn('Bw3\'')">Bw3'</button>
+          </div>
+        </div>
+
+        <!-- 仅在 3/5 阶有效 -->
+        <div class="sec-3x3 sec-5x5">
+          <div class="divider" style="height: 1px; background: var(--border-light); margin: 12px 0;"></div>
+          <div class="lbl" style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">中层旋转 (M, E, S)</div>
+          <div class="btn-grid">
+            <button onclick="triggerMoveBtn('M')">M</button>
+            <button onclick="triggerMoveBtn('E')">E</button>
+            <button onclick="triggerMoveBtn('S')">S</button>
+            <button onclick="triggerMoveBtn('M\'')">M'</button>
+            <button onclick="triggerMoveBtn('E\'')">E'</button>
+            <button onclick="triggerMoveBtn('S\'')">S'</button>
+          </div>
+        </div>
+
+        <!-- 整体旋转 -->
+        <div class="divider" style="height: 1px; background: var(--border-light); margin: 12px 0;"></div>
+        <div class="lbl" style="font-size: 0.65rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">整体视角旋转 (不影响还原态)</div>
+        <div class="btn-grid">
+          <button onclick="triggerMoveBtn('X')">X</button>
+          <button onclick="triggerMoveBtn('Y')">Y</button>
+          <button onclick="triggerMoveBtn('Z')">Z</button>
+          <button onclick="triggerMoveBtn('X\'')">X'</button>
+          <button onclick="triggerMoveBtn('Y\'')">Y'</button>
+          <button onclick="triggerMoveBtn('Z\'')">Z'</button>
+        </div>
+      </section>
+
+      <!-- 历史记录看板 -->
+      <section class="panel glass-card">
+        <h2>大底公式历史 <em>MOVE ARCHIVE</em></h2>
+        <div class="history-box" id="globalHistoryBox">
+          <span style="font-size: 0.7rem; color: var(--text-muted);">暂无公式历史记录</span>
+        </div>
+      </section>
+
+      <!-- 说明与致谢 -->
+      <p style="font-size: 0.65rem; color: var(--text-muted); text-align: center; margin-bottom: 24px; line-height: 1.6;">
+        ApexCube Cosmic Lab © 2026. <br>
+        Powered by Three.js & Kociemba Algorithm.<br>
+        专为魔方极客、职业速拧选手打造。
+      </p>
+
+    </aside>
+
+  </div>
+
+  <!-- 引入 Three.js 与 Kociemba 算法 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/kociemba@0.6.2/kociemba.min.js"></script>
+
+  <script>
+    // -------------------------------------------------------------
+    // 基础定义与色彩管理
+    // -------------------------------------------------------------
+    const COLORS = {
+      U: 0xF5F6FA, // 莹贝白 (白色)
+      D: 0xFED330, // 曜光黄 (黄色)
+      F: 0x20BF6B, // 碧玺绿 (绿色)
+      B: 0x0984E3, // 海神蓝 (蓝色)
+      R: 0xEB3B5A, // 耀岩红 (红色)
+      L: 0xFA8231, // 炽羽橙 (橙色)
+      inside: 0x090D1A // 暗黑色 (魔方内部块体)
+    };
+
+    const HEX_TO_FACE = {
+      '16119546': 'U', // COLORS.U
+      '16700208': 'D', // COLORS.D
+      '2146155':  'F', // COLORS.F
+      '623843':   'B', // COLORS.B
+      '15416154': 'R', // COLORS.R
+      '16417329': 'L'  // COLORS.L
+    };
+
+    const FACE_NORMALS = {
+      U: new THREE.Vector3(0, 1, 0),
+      D: new THREE.Vector3(0, -1, 0),
+      F: new THREE.Vector3(0, 0, 1),
+      B: new THREE.Vector3(0, 0, -1),
+      R: new THREE.Vector3(1, 0, 0),
+      L: new THREE.Vector3(-1, 0, 0)
+    };
+
+    // -------------------------------------------------------------
+    // 全局变量定义
+    // -------------------------------------------------------------
+    let scene, camera, renderer, cubeGroup;
+    let cubies = [];
+    let stickers = [];
+    let targetZoom = 6.2;
+    let currentZoom = 6.2;
+    let targetRotX = -0.55;
+    let targetRotY = 0.65;
+    let currentRotX = -0.55;
+    let currentRotY = 0.65;
+    let cubeSize = 3; // 默认三阶
+
+    // 交互与拖拽状态
+    let isViewDragging = false;
+    let isStickerDragging = false;
+    let previousMouse = { x: 0, y: 0 };
+    let dragStartSticker = null;
+    let dragStartLocalPoint = null;
+    let dragStartLocalNormal = null;
+    let dragLocalPlane = null;
+    let dragThreshold3D = 0.28; // 滑动触发旋转的局部 3D 阈值
+    let activePointerId = null;
+    let suppressViewUntilPointerUp = false;
+
+    // 按键缓存队列
+    let moveQueue = [];
+    let isExecutingMove = false;
+    const BASE_DURATION = 280; // 基准旋转动画耗时(ms)
+    let animSpeedLevel = 1; // 速度等级
+    const SPEED_MULTIPLIERS = [0.5, 1.0, 2.0, 4.0, 99999]; // 99999代表即时归整
+
+    // 手感与魔法控制
+    let isFloatEnabled = true;
+    let isParticleSpellEnabled = true;
+    let cosmicAura = null; // 外部全息霓虹光环
+    let starParticles = []; // 粒子爆发数组
+
+    // 魔方物理状态
+    let moveHistory = []; // 操作历史
+    let totalMoves = 0;   // 步数统计
+
+    // Kociemba 智能还原与教学
+    let solveGuideSequence = [];
+    let solveGuideIndex = 0;
+
+    // WCA 竞速计时器状态机
+    const TIMER_STATE = { IDLE: 0, READY_WAITING: 1, READY: 2, RUNNING: 3 };
+    let currentTimerState = TIMER_STATE.IDLE;
+    let timerHoldStart = 0;
+    let timerHoldInterval = null;
+    let timerStartInstant = 0;
+    let timerDrawInterval = null;
+    let isWcaModeActive = false; // 是否启动官方 WCA 竞速打乱
+    let wcaScrambleSequence = []; // 存放当前生成的官方打乱
+
+    // Stats 看板持久化数据
+    const DEFAULT_STATS_DATA = {
+      pb: null,
+      maxTps: null,
+      scores: [] // 格式：{ time: 12.34, moves: 25, tps: 2.02, date: '05-25' }
+    };
+    let statsData = { ...DEFAULT_STATS_DATA, scores: [] };
+
+    // -------------------------------------------------------------
+    // 初始化入口
+    // -------------------------------------------------------------
+    window.onload = function() {
+      loadStatsFromStorage();
+      initScene();
+      buildCube(3);
+      setupGlobalEvents();
+      updateStatsUI();
+      animate(0);
+      showToast("巔峰寰宇實驗室已就位 🪄");
+    };
+
+    // -------------------------------------------------------------
+    // 1. 3D 视觉与场景初始化
+    // -------------------------------------------------------------
+    function initScene() {
+      const container = document.getElementById('canvas-viewport');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      scene = new THREE.Scene();
+      // 添加科幻朦胧雾化效果
+      scene.fog = new THREE.FogExp2(0x030712, 0.04);
+
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+      camera.position.set(0, 0, currentZoom);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      // 光影艺术设计
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
+      scene.add(ambientLight);
+
+      const mainLight = new THREE.DirectionalLight(0xffffff, 1.45);
+      mainLight.position.set(6, 12, 8);
+      mainLight.castShadow = true;
+      scene.add(mainLight);
+
+      const cyberCyanLight = new THREE.PointLight(0x00e5a0, 3.2, 24);
+      cyberCyanLight.position.set(-6, 4, 6);
+      scene.add(cyberCyanLight);
+
+      const cyberPurpleLight = new THREE.PointLight(0x8b5cf6, 2.5, 20);
+      cyberPurpleLight.position.set(5, -4, -6);
+      scene.add(cyberPurpleLight);
+
+      cubeGroup = new THREE.Group();
+      scene.add(cubeGroup);
+
+      // 创建全息霓虹光环
+      createNeonAura();
+
+      // 创建背景飘浮微星尘
+      createCosmicDust();
+    }
+
+    // 全息外围发光光环
+    function createNeonAura() {
+      if (cosmicAura) cubeGroup.remove(cosmicAura);
+      cosmicAura = new THREE.Group();
+
+      const r = cubeSize * 0.95;
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0x00e5a0,
+        transparent: true,
+        opacity: 0.18,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+
+      const ringGeo = new THREE.TorusGeometry(r * 1.35, 0.015, 8, 120);
+      
+      const ringX = new THREE.Mesh(ringGeo, mat.clone());
+      ringX.rotation.x = Math.PI / 2;
+      cosmicAura.add(ringX);
+
+      const ringY = new THREE.Mesh(ringGeo, mat.clone());
+      ringY.rotation.y = Math.PI / 2;
+      cosmicAura.add(ringY);
+
+      const ringZ = new THREE.Mesh(ringGeo, mat.clone());
+      cosmicAura.add(ringZ);
+
+      cubeGroup.add(cosmicAura);
+    }
+
+    // 背景微弱飘散星尘
+    function createCosmicDust() {
+      const count = 180;
+      const geo = new THREE.BufferGeometry();
+      const posArr = new Float32Array(count * 3);
+      for (let i = 0; i < count; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos((Math.random() * 2) - 1);
+        const radius = 15 + Math.random() * 25;
+        posArr[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+        posArr[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+        posArr[i * 3 + 2] = radius * Math.cos(phi);
+      }
+      geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+      const mat = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.05,
+        transparent: true,
+        opacity: 0.35,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const dust = new THREE.Points(geo, mat);
+      scene.add(dust);
+    }
+
+    // -------------------------------------------------------------
+    // 2. 魔方物理模型与圆角卡槽贴纸构造
+    // -------------------------------------------------------------
+    function buildCube(size, options = {}) {
+      cubeSize = size;
+      cubies = [];
+      stickers = [];
+      solveGuideSequence = [];
+      document.getElementById('solveGuideBanner').style.display = 'none';
+
+      // 移除原魔方的所有小块，但保留霓虹光环
+      const toRemove = [];
+      cubeGroup.children.forEach(c => {
+        if (c !== cosmicAura) toRemove.push(c);
+      });
+      toRemove.forEach(c => {
+        cubeGroup.remove(c);
+        disposeObject3D(c);
+      });
+
+      // 适配相机远近
+      const zoomMap = { 2: 5.5, 3: 6.2, 4: 8.2, 5: 10.2 };
+      targetZoom = zoomMap[size] || 6.2;
+
+      createNeonAura();
+
+      const n = cubeSize;
+      const half = (n - 1) / 2;
+      const spacing = 1.0; 
+      const bodySize = 0.96; // 稍微有一点点缝隙 (Spacing - bodySize)
+      const stickerSize = bodySize * 0.84;
+      const stickerOffset = bodySize / 2 + 0.003; // 卡槽外露偏移量，防止z-fighting
+
+      const posRange = [];
+      for (let i = 0; i < n; i++) {
+        posRange.push((i - half) * spacing);
+      }
+
+      const maxPosVal = half * spacing;
+
+      for (let xi = 0; xi < n; xi++) {
+        for (let yi = 0; yi < n; yi++) {
+          for (let zi = 0; zi < n; zi++) {
+            const x = posRange[xi];
+            const y = posRange[yi];
+            const z = posRange[zi];
+
+            // 过滤无外露面的纯内层块，仅限阶数 > 2 优化渲染性能
+            if (n > 2) {
+              const onOuterBorder = (xi === 0 || xi === n - 1 || yi === 0 || yi === n - 1 || zi === 0 || zi === n - 1);
+              if (!onOuterBorder) continue;
+            }
+
+            const cubie = new THREE.Group();
+            // 绑定小立方块在网格体系中的物理定位和初始数据
+            cubie.userData.grid = { ix: xi, iy: yi, iz: zi };
+            cubie.userData.solved = { ix: xi, iy: yi, iz: zi };
+            cubie.userData.key = `${xi},${yi},${zi}`;
+
+            // 主块体材质：高阶哑光金属碳纤维质感
+            const bodyGeo = new THREE.BoxGeometry(bodySize, bodySize, bodySize);
+            const bodyMat = new THREE.MeshPhysicalMaterial({
+              color: COLORS.inside,
+              roughness: 0.45,
+              metalness: 0.28,
+              clearcoat: 0.4,
+              clearcoatRoughness: 0.3
+            });
+            const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+            bodyMesh.castShadow = true;
+            bodyMesh.receiveShadow = true;
+            cubie.add(bodyMesh);
+
+            // 智能渲染 6 个圆角贴纸，并开启微弱荧光自发光
+            // U (顶)
+            if (Math.abs(y - maxPosVal) < 0.001) {
+              cubie.add(makeStickerMesh('U', COLORS.U, stickerSize, new THREE.Vector3(0, stickerOffset, 0), new THREE.Euler(-Math.PI/2, 0, 0)));
+            }
+            // D (底)
+            if (Math.abs(y + maxPosVal) < 0.001) {
+              cubie.add(makeStickerMesh('D', COLORS.D, stickerSize, new THREE.Vector3(0, -stickerOffset, 0), new THREE.Euler(Math.PI/2, 0, 0)));
+            }
+            // R (右)
+            if (Math.abs(x - maxPosVal) < 0.001) {
+              cubie.add(makeStickerMesh('R', COLORS.R, stickerSize, new THREE.Vector3(stickerOffset, 0, 0), new THREE.Euler(0, Math.PI/2, 0)));
+            }
+            // L (左)
+            if (Math.abs(x + maxPosVal) < 0.001) {
+              cubie.add(makeStickerMesh('L', COLORS.L, stickerSize, new THREE.Vector3(-stickerOffset, 0, 0), new THREE.Euler(0, -Math.PI/2, 0)));
+            }
+            // F (前)
+            if (Math.abs(z - maxPosVal) < 0.001) {
+              cubie.add(makeStickerMesh('F', COLORS.F, stickerSize, new THREE.Vector3(0, 0, stickerOffset), new THREE.Euler(0, 0, 0)));
+            }
+            // B (后)
+            if (Math.abs(z + maxPosVal) < 0.001) {
+              cubie.add(makeStickerMesh('B', COLORS.B, stickerSize, new THREE.Vector3(0, 0, -stickerOffset), new THREE.Euler(0, Math.PI, 0)));
+            }
+
+            cubie.position.set(x, y, z);
+            cubeGroup.add(cubie);
+            cubies.push(cubie);
+          }
+        }
+      }
+
+      // 重置状态
+      totalMoves = 0;
+      moveHistory = [];
+      document.getElementById('moveCount').textContent = '0';
+      updateStatsUI();
+      updateHistoryUI();
+      document.getElementById('cubeOrderText').textContent = `${size}×${size}`;
+      updateCubeSolvedStatus();
+
+      // UI 部分显隐控制
+      document.querySelectorAll('.sec-3x3').forEach(el => el.style.display = size === 3 ? 'block' : 'none');
+      document.querySelectorAll('.sec-4x4').forEach(el => el.style.display = size === 4 ? 'block' : 'none');
+      document.querySelectorAll('.sec-5x5').forEach(el => el.style.display = size === 5 ? 'block' : 'none');
+
+      if (!options.skipAutoWcaScramble && isWcaModeActive && size === 3) {
+        generateWcaScramble();
+      } else if (!isWcaModeActive || size !== 3) {
+        document.getElementById('wcaScrambleBanner').style.display = 'none';
+      }
+    }
+
+    // 制造圆角贴纸网格，附带自发光
+    function makeStickerMesh(faceName, hexColor, size, pos, rot) {
+      const radius = size * 0.12;
+      const w = size, h = size;
+      const shape = new THREE.Shape();
+      const x = -w/2, y = -h/2;
+      shape.moveTo(x + radius, y);
+      shape.lineTo(x + w - radius, y);
+      shape.quadraticCurveTo(x + w, y, x + w, y + radius);
+      shape.lineTo(x + w, y + h - radius);
+      shape.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+      shape.lineTo(x + radius, y + h);
+      shape.quadraticCurveTo(x, y + h, x, y + h - radius);
+      shape.lineTo(x, y + radius);
+      shape.quadraticCurveTo(x, y, x + radius, y);
+
+      const geo = new THREE.ShapeGeometry(shape, 8);
+      const mat = new THREE.MeshBasicMaterial({
+        color: hexColor,
+        roughness: 0.18,
+        metalness: 0.05,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.1,
+        emissive: hexColor,
+        emissiveIntensity: 0.08  // 科技荧光感
+      });
+
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.copy(pos);
+      mesh.rotation.copy(rot);
+      mesh.name = `sticker-${faceName}`;
+      mesh.userData = {
+        face: faceName,
+        color: hexColor,
+        normal: FACE_NORMALS[faceName].clone()
+      };
+
+      stickers.push(mesh);
+      return mesh;
+    }
+
+    // 物理归整浮点座标
+    function roundPosVal(val) {
+      const half = (cubeSize - 1) / 2;
+      if (cubeSize % 2 === 1) {
+        return Math.round(val);
+      } else {
+        // 双数阶级，座标值为 .5
+        return Math.round(val * 2) / 2;
+      }
+    }
+
+    function getCubieLocalPosition(cubie) {
+      const pos = new THREE.Vector3();
+      cubie.getWorldPosition(pos);
+      cubeGroup.worldToLocal(pos);
+      pos.x = roundPosVal(pos.x);
+      pos.y = roundPosVal(pos.y);
+      pos.z = roundPosVal(pos.z);
+      return pos;
+    }
+
+    function localAxisValueToLayerIndex(value) {
+      const half = (cubeSize - 1) / 2;
+      return Math.max(0, Math.min(cubeSize - 1, Math.round(value + half)));
+    }
+
+    function invertMoveNotation(move) {
+      let s = String(move || '').trim().replace(/’/g, "'");
+      if (!s) return s;
+      if (s.endsWith("2'")) return s.slice(0, -1);
+      if (s.endsWith('2')) return s;
+      if (s.endsWith("'")) return s.slice(0, -1);
+      return s + "'";
+    }
+
+    function disposeObject3D(obj) {
+      if (!obj) return;
+      obj.traverse(child => {
+        if (child.geometry) child.geometry.dispose();
+        const mat = child.material;
+        if (Array.isArray(mat)) mat.forEach(m => m && m.dispose && m.dispose());
+        else if (mat && mat.dispose) mat.dispose();
+      });
+    }
+
+    function makeHistoryTag(text) {
+      const span = document.createElement('span');
+      span.className = 'history-tag';
+      span.textContent = text;
+      return span;
+    }
+
+    // -------------------------------------------------------------
+    // 3. 极速非阻塞 MoveQueue (按键缓存队列)
+    // -------------------------------------------------------------
+    function enqueueMove(moveName) {
+      // 计时器若在蓄力/READY状态，禁止输入
+      if (currentTimerState === TIMER_STATE.READY_WAITING || currentTimerState === TIMER_STATE.READY) return;
+      
+      moveQueue.push(moveName);
+      processMoveQueue();
+    }
+
+    async function processMoveQueue() {
+      if (isExecutingMove || moveQueue.length === 0) return;
+      isExecutingMove = true;
+
+      const queueItem = moveQueue.shift();
+      const rawMove = typeof queueItem === 'string' ? queueItem : queueItem.notation;
+      const moveOptions = typeof queueItem === 'string' ? {} : (queueItem.options || {});
+
+      // 智能提速策略：如果队列积压过大，说明职业选手在狂敲公式，我们需要瞬间/极速回馈！
+      let duration = BASE_DURATION;
+      if (moveQueue.length >= 4) {
+        duration = 0; // 瞬间移动！
+      } else if (moveQueue.length >= 2) {
+        duration = BASE_DURATION / 2.8; // 3倍播放！
+      }
+
+      // 叠加当前设定的整体动画速度等级倍率
+      if (duration > 0) {
+        const mult = SPEED_MULTIPLIERS[animSpeedLevel];
+        if (mult > 1000) duration = 0; // "即时"
+        else duration = duration / mult;
+      }
+
+      try {
+        await executeMoveStep(rawMove, duration, moveOptions);
+      } catch (err) {
+        console.error(err);
+      }
+
+      isExecutingMove = false;
+      // 极小延迟启动下一步
+      setTimeout(processMoveQueue, 0);
+    }
+
+    // 解析魔方符号
+    function parseMoveNotation(rawStr) {
+      const original = String(rawStr || '').trim().replace(/’/g, "'");
+      let s = original;
+      if (!s) throw new Error("空操作");
+
+      const isPrime = s.endsWith("'");
+      if (isPrime) s = s.slice(0, -1);
+
+      let amount = 1;
+      if (s.endsWith('2')) {
+        amount = 2;
+        s = s.slice(0, -1);
+      }
+
+      // 兼容 UI 里的 3Uw 写法，同时保留键盘生成的 Uw3 写法。
+      const prefixWidthMatch = s.match(/^([2-9])([UDLRFBudlrfb])([wW])$/);
+      let prefixedWidth = null;
+      if (prefixWidthMatch) {
+        prefixedWidth = parseInt(prefixWidthMatch[1], 10);
+        s = prefixWidthMatch[2] + prefixWidthMatch[3];
+      }
+
+      let isInnerOnly = false;
+      const first = s[0];
+      // lowercase 的 u,d,l,r,f,b 代表内层旋转
+      if (/^[udlrfb]$/.test(first)) {
+        isInnerOnly = true;
+        s = first.toUpperCase() + s.slice(1);
+      }
+
+      const base = s[0].toUpperCase();
+      const rest = s.slice(1);
+      let width = 1;
+
+      if (FACE_NORMALS[base]) {
+        if (prefixedWidth !== null) {
+          width = prefixedWidth;
+        } else if (rest === '') {
+          width = 1;
+        } else {
+          const widthMatch = rest.match(/^[wW]([2-9])?$/) || rest.match(/^([2-9])[wW]$/);
+          if (!widthMatch) throw new Error(`非法魔方符号: ${original}`);
+          width = widthMatch[1] ? parseInt(widthMatch[1], 10) : 2;
+        }
+      } else if (base === 'M' || base === 'E' || base === 'S' || base === 'X' || base === 'Y' || base === 'Z') {
+        if (rest !== '') throw new Error(`非法魔方符号: ${original}`);
+      } else {
+        throw new Error(`非法魔方符号: ${original}`);
+      }
+
+      // 倍角度数和物理旋转
+      const P = Math.PI / 2;
+      let axis, layers = [], angle = -P * amount * (isPrime ? -1 : 1);
+
+      if (FACE_NORMALS[base]) {
+        const normal = FACE_NORMALS[base];
+        axis = normal.x !== 0 ? 'x' : (normal.y !== 0 ? 'y' : 'z');
+        const isFromMax = (normal.x > 0 || normal.y > 0 || normal.z > 0);
+
+        // 旋转方向映射
+        let sign = isFromMax ? -1 : 1;
+        if (isPrime) sign = -sign;
+        angle = (P * amount) * sign;
+
+        // 计算受力层
+        const half = (cubeSize - 1) / 2;
+        const spacing = 1.0;
+        const maxVal = half * spacing;
+
+        if (isInnerOnly) {
+          // 4/5阶内层 u/d/l/r/f/b
+          if (cubeSize < 4) throw new Error(`当前阶数不支持内层旋转: ${original}`);
+          const targetLvl = isFromMax ? maxVal - spacing : -maxVal + spacing;
+          layers = [targetLvl];
+        } else if (width > 1) {
+          // 宽旋转 (Uw, Dw, Uw3, 3Uw)
+          if (cubeSize < 4) throw new Error(`当前阶数不支持宽旋转: ${original}`);
+          const actualWidth = Math.min(width, cubeSize);
+          for (let k = 0; k < actualWidth; k++) {
+            layers.push(isFromMax ? maxVal - k * spacing : -maxVal + k * spacing);
+          }
+        } else {
+          // 标准单外层
+          layers = [isFromMax ? maxVal : -maxVal];
+        }
+      } else if (base === 'M' || base === 'E' || base === 'S') {
+        // M E S 中层旋转
+        axis = base === 'M' ? 'x' : (base === 'E' ? 'y' : 'z');
+        const sign = (base === 'M' ? 1 : (base === 'E' ? 1 : -1)) * (isPrime ? -1 : 1);
+        angle = (P * amount) * sign;
+
+        // 双数阶和单数阶中层处理
+        const spacing = 1.0;
+        if (cubeSize % 2 === 1) {
+          layers = [0];
+        } else {
+          layers = [-0.5 * spacing, 0.5 * spacing];
+        }
+      } else if (base === 'X' || base === 'Y' || base === 'Z') {
+        // 整体旋转 X Y Z
+        axis = base === 'X' ? 'x' : (base === 'Y' ? 'y' : 'z');
+        const sign = -1 * (isPrime ? -1 : 1);
+        angle = (P * amount) * sign;
+        layers = 'all';
+      }
+
+      // 归整 layer 确保全是浮点数值
+      if (Array.isArray(layers)) {
+        layers = layers.map(val => roundPosVal(val));
+      }
+
+      return { axis, layers, angle, normalized: original };
+    }
+
+    // 执行单步 move
+    function executeMoveStep(notationName, duration, options = {}) {
+      return new Promise((resolve, reject) => {
+        try {
+          const moveSpec = parseMoveNotation(notationName);
+          const { axis, layers, angle } = moveSpec;
+
+          // 选取参与当前层旋转的 cubies
+          const spinningCubies = cubies.filter(c => {
+            if (layers === 'all') return true;
+            const pos = new THREE.Vector3();
+            c.getWorldPosition(pos);
+            cubeGroup.worldToLocal(pos);
+            const val = roundPosVal(pos[axis]);
+            return layers.includes(val);
+          });
+
+          if (spinningCubies.length === 0) {
+            resolve();
+            return;
+          }
+
+          // WCA 计时从松开空格即刻开始，不再把起点延后到第一步。
+
+          // 粒子星尘缝隙喷散特效
+          triggerStarBurst(axis, layers, spinningCubies);
+
+          if (duration === 0) {
+            // 即时归整，无动画
+            spinningCubies.forEach(c => {
+              c.position.applyAxisAngle(new THREE.Vector3(axis==='x'?1:0, axis==='y'?1:0, axis==='z'?1:0), angle);
+              c.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(axis==='x'?1:0, axis==='y'?1:0, axis==='z'?1:0), angle));
+              // 物理对齐
+              c.position.x = roundPosVal(c.position.x);
+              c.position.y = roundPosVal(c.position.y);
+              c.position.z = roundPosVal(c.position.z);
+              c.quaternion.normalize();
+            });
+            postMoveLogic(moveSpec.normalized, options);
+            resolve();
+          } else {
+            // 平滑缓动
+            const pivot = new THREE.Group();
+            cubeGroup.add(pivot);
+            spinningCubies.forEach(c => {
+              cubeGroup.remove(c);
+              pivot.add(c);
+            });
+
+            const startTime = performance.now();
+            const axisVec = new THREE.Vector3(axis==='x'?1:0, axis==='y'?1:0, axis==='z'?1:0);
+
+            function tick(now) {
+              const elapsed = now - startTime;
+              const t = Math.min(elapsed / duration, 1);
+              // Cubic smooth transition
+              const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+              pivot.rotation[axis] = angle * eased;
+
+              if (t < 1) {
+                requestAnimationFrame(tick);
+              } else {
+                // 动画结束，解开挂载并归位
+                pivot.rotation[axis] = angle;
+                pivot.updateMatrixWorld();
+
+                spinningCubies.forEach(c => {
+                  const wp = new THREE.Vector3();
+                  const wq = new THREE.Quaternion();
+                  c.getWorldPosition(wp);
+                  c.getWorldQuaternion(wq);
+
+                  pivot.remove(c);
+                  cubeGroup.add(c);
+
+                  cubeGroup.worldToLocal(wp);
+                  c.position.copy(wp);
+
+                  const parentQ = new THREE.Quaternion();
+                  cubeGroup.getWorldQuaternion(parentQ);
+                  parentQ.invert().multiply(wq);
+                  c.quaternion.copy(parentQ);
+
+                  // 坐标与旋转四元数强制四舍五入防浮点漂移
+                  c.position.x = roundPosVal(c.position.x);
+                  c.position.y = roundPosVal(c.position.y);
+                  c.position.z = roundPosVal(c.position.z);
+                  c.quaternion.normalize();
+                });
+
+                cubeGroup.remove(pivot);
+                postMoveLogic(moveSpec.normalized, options);
+                resolve();
+              }
+            }
+            requestAnimationFrame(tick);
+          }
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+
+    // 层旋转执行完毕的后续结算
+    function postMoveLogic(notationName, options = {}) {
+      const shouldRecord = options.recordHistory !== false;
+      if (shouldRecord) {
+        totalMoves++;
+        moveHistory.push(notationName);
+        document.getElementById('moveCount').textContent = totalMoves;
+      }
+
+      // 实时更新分步教学箭头
+      if (options.updateGuide !== false) {
+        updateTutorGuideState(notationName);
+      }
+
+      // 实时更新历史面板
+      updateHistoryUI();
+
+      // 验证是否已完全还原
+      const solved = updateCubeSolvedStatus();
+
+      // 计时器模式下复原自动停表
+      if (currentTimerState === TIMER_STATE.RUNNING && solved) {
+        stopWcaTimer(true);
+      }
+    }
+
+    // WCA 官方打乱与正常打乱触发
+    function scrambleCube() {
+      if (currentTimerState === TIMER_STATE.RUNNING) return;
+      
+      const steps = 20;
+      const baseMoves = ['U', 'D', 'L', 'R', 'F', 'B'];
+      const suffix = ["", "'", "2"];
+      
+      let sequence = [];
+      let lastFace = '';
+
+      for (let i = 0; i < steps; i++) {
+        let f = '';
+        do {
+          f = baseMoves[Math.floor(Math.random() * baseMoves.length)];
+        } while (f === lastFace);
+        lastFace = f;
+
+        let move = f + suffix[Math.floor(Math.random() * suffix.length)];
+        if (cubeSize >= 4 && Math.random() < 0.3) {
+          move = f.toLowerCase() + suffix[Math.floor(Math.random() * suffix.length)];
+        }
+        sequence.push(move);
+      }
+
+      showToast("正在魔法打亂...");
+      // 用非常快的速度执行
+      sequence.forEach(m => moveQueue.push(m));
+      processMoveQueue();
+    }
+
+    // 撤回一步操作
+    async function undoLastMove() {
+      if (currentTimerState === TIMER_STATE.RUNNING) {
+        showToast("计时中无法撤销");
+        return;
+      }
+      if (isExecutingMove || moveQueue.length > 0) {
+        showToast("请等待当前旋转完成后再撤销");
+        return;
+      }
+      if (moveHistory.length === 0) {
+        showToast("历史操作为空，无法撤销");
+        return;
+      }
+
+      const last = moveHistory.pop();
+      const prime = invertMoveNotation(last);
+      totalMoves = Math.max(0, totalMoves - 1);
+      document.getElementById('moveCount').textContent = totalMoves;
+      updateHistoryUI();
+
+      isExecutingMove = true;
+      try {
+        await executeMoveStep(prime, BASE_DURATION / Math.max(1, SPEED_MULTIPLIERS[animSpeedLevel]), {
+          recordHistory: false,
+          updateGuide: false
+        });
+        showToast(`已撤销 ${last}`);
+      } catch (err) {
+        console.error(err);
+        // 撤销失败时把历史放回去，避免状态与面板继续错乱。
+        moveHistory.push(last);
+        totalMoves++;
+        document.getElementById('moveCount').textContent = totalMoves;
+        updateHistoryUI();
+        showToast("撤销失败，已恢复历史记录");
+      } finally {
+        isExecutingMove = false;
+        processMoveQueue();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 4. 3D 贴纸手势射线拾取拖拽层旋转 (高级拟真交互)
+    // -------------------------------------------------------------
+    function setupGlobalEvents() {
+      const container = renderer.domElement;
+
+      container.addEventListener('pointerdown', onPointerDown, { passive: false });
+      container.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+
+      // 屏蔽右键菜单，保证右键拖拽视角无比顺畅
+      container.addEventListener('contextmenu', e => e.preventDefault());
+
+      // 滚轮缩放
+      container.addEventListener('wheel', e => {
+        e.preventDefault();
+        targetZoom += e.deltaY * 0.005;
+        targetZoom = Math.max(3.8, Math.min(18, targetZoom));
+      }, { passive: false });
+
+      // 键盘快捷键
+      window.addEventListener('keydown', onKeyDown);
+      window.addEventListener('keyup', onKeyUp);
+    }
+
+    let dragStartMouse = { x: 0, y: 0 };
+    let dragStartWorldPoint = new THREE.Vector3();
+
+    function captureActivePointer(e) {
+      activePointerId = e.pointerId;
+      try {
+        if (renderer && renderer.domElement && renderer.domElement.setPointerCapture) {
+          renderer.domElement.setPointerCapture(e.pointerId);
+        }
+      } catch (_) {}
+    }
+
+    function onPointerDown(e) {
+      if (currentTimerState === TIMER_STATE.READY_WAITING || currentTimerState === TIMER_STATE.READY) return;
+      if (e.button !== 0 && e.button !== 2) return;
+
+      const rect = renderer.domElement.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+
+      // 右键拖拽，或 Shift + 左键拖拽，明确用于视角旋转。
+      if (e.button === 2 || e.shiftKey) {
+        e.preventDefault();
+        isViewDragging = true;
+        isStickerDragging = false;
+        suppressViewUntilPointerUp = false;
+        previousMouse = { x: e.clientX, y: e.clientY };
+        captureActivePointer(e);
+        return;
+      }
+
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+
+      // 先检测贴纸，再检测整个魔方。这样按在贴纸缝隙/块体边缘时也不会被误认为空白区并旋转视角。
+      const stickerIntersects = raycaster.intersectObjects(stickers, false);
+      const cubeIntersects = raycaster.intersectObjects(cubies, true);
+
+      if (stickerIntersects.length > 0 && e.button === 0) {
+        e.preventDefault();
+
+        // 直接拖拽时，如果上一层还在动画中，不启动视角旋转，也不读取运动中的贴纸状态，避免反向/错层。
+        if (isExecutingMove || moveQueue.length > 0) {
+          suppressViewUntilPointerUp = true;
+          captureActivePointer(e);
+          return;
+        }
+
+        isStickerDragging = true;
+        isViewDragging = false;
+        suppressViewUntilPointerUp = true;
+        dragStartSticker = stickerIntersects[0].object;
+
+        // 记录鼠标按下时的像素坐标、魔方局部交点、当前贴纸外法线。
+        dragStartMouse = { x: e.clientX, y: e.clientY };
+        dragStartLocalPoint = cubeGroup.worldToLocal(stickerIntersects[0].point.clone());
+        const clickedCubie = dragStartSticker.parent;
+        dragStartLocalNormal = dragStartSticker.userData.normal.clone().applyQuaternion(clickedCubie.quaternion).normalize();
+
+        previousMouse = { x: e.clientX, y: e.clientY };
+        captureActivePointer(e);
+      } else if (cubeIntersects.length > 0 && e.button === 0) {
+        // 左键点在魔方本体/缝隙上：锁住本次指针，避免误触发视角旋转。
+        e.preventDefault();
+        isStickerDragging = false;
+        isViewDragging = false;
+        suppressViewUntilPointerUp = true;
+        previousMouse = { x: e.clientX, y: e.clientY };
+        captureActivePointer(e);
+      } else {
+        // 真正空白处左键拖拽，才用于视角整体旋转。
+        e.preventDefault();
+        isViewDragging = true;
+        isStickerDragging = false;
+        suppressViewUntilPointerUp = false;
+        previousMouse = { x: e.clientX, y: e.clientY };
+        captureActivePointer(e);
+      }
+    }
+
+    function onPointerMove(e) {
+      if (activePointerId !== null && e.pointerId !== activePointerId) return;
+
+      if (isViewDragging) {
+        e.preventDefault();
+        // 视角整体旋转
+        const dx = e.clientX - previousMouse.x;
+        const dy = e.clientY - previousMouse.y;
+        targetRotY += dx * 0.0065;
+        targetRotX += dy * 0.0065;
+        // 仰角锁定 [-85度, 85度]
+        targetRotX = Math.max(-1.48, Math.min(1.48, targetRotX));
+        previousMouse = { x: e.clientX, y: e.clientY };
+      } else if (isStickerDragging) {
+        e.preventDefault();
+        // 计算当前鼠标在屏幕像素坐标系下的 2D 位移差
+        const deltaPixel = new THREE.Vector2(
+          e.clientX - dragStartMouse.x,
+          e.clientY - dragStartMouse.y
+        );
+
+        // 设定稳定无误判的像素空间划动距离阈值 25px (避开按下瞬间的微小抖动噪音)
+        if (deltaPixel.length() > 25) {
+          isStickerDragging = false; // 触发一次后锁死，防止单次拖动旋转多层
+
+          const clickedCubie = dragStartSticker.parent;
+
+          // 面内双轴匹配：只允许在当前贴纸平面内对应的两根轴中选一根，避免误选贴纸法线轴导致反向/错向。
+          const matchedMove = matchPixelDragToMove(dragStartLocalPoint, dragStartLocalNormal, deltaPixel, clickedCubie);
+          if (matchedMove) {
+            enqueueMove(matchedMove);
+          }
+        }
+      } else if (suppressViewUntilPointerUp) {
+        // 本次左键已经按在魔方上，即使没有命中贴纸，也不允许中途转成视角旋转。
+        e.preventDefault();
+      }
+    }
+
+    // 放开鼠标/触控
+    function onPointerUp(e) {
+      if (activePointerId !== null && e && e.pointerId !== undefined && e.pointerId !== activePointerId) return;
+      try {
+        if (renderer && renderer.domElement && renderer.domElement.releasePointerCapture && activePointerId !== null) {
+          renderer.domElement.releasePointerCapture(activePointerId);
+        }
+      } catch (_) {}
+      isViewDragging = false;
+      isStickerDragging = false;
+      suppressViewUntilPointerUp = false;
+      activePointerId = null;
+    }
+
+    // 稳定屏幕像素空间手势匹配器：只在当前贴纸平面内的两根轴里选择，避免误选法线轴导致反向/错向。
+    function matchPixelDragToMove(lStartPtInput, localNormal, deltaPixel, clickedCubie) {
+      if (!lStartPtInput || !localNormal || !clickedCubie) return null;
+
+      // 强制同步重算魔方最新的 3D 世界变换矩阵，防偏差。
+      cubeGroup.updateMatrixWorld(true);
+
+      const lStartPt = lStartPtInput.clone();
+      const width = renderer.domElement.clientWidth;
+      const height = renderer.domElement.clientHeight;
+
+      // 当前点击贴纸所属的面法线，例如 F 面为 z，U 面为 y。拖拽层旋转只允许在另外两根轴中选择。
+      const normalAbs = {
+        x: Math.abs(localNormal.x),
+        y: Math.abs(localNormal.y),
+        z: Math.abs(localNormal.z)
+      };
+      const normalAxis = normalAbs.x >= normalAbs.y && normalAbs.x >= normalAbs.z
+        ? 'x'
+        : (normalAbs.y >= normalAbs.z ? 'y' : 'z');
+
+      const candidateAxes = ['x', 'y', 'z'].filter(axis => axis !== normalAxis);
+
+      // 投影点击起点 NDC 并转换到像素坐标。起点从局部坐标还原，避免视角轻微漂浮造成按下点漂移。
+      const wStartPt = cubeGroup.localToWorld(lStartPt.clone());
+      const ndcStart = wStartPt.clone().project(camera);
+      const start2D = new THREE.Vector2(
+        ((ndcStart.x + 1) / 2) * width,
+        ((1 - ndcStart.y) / 2) * height
+      );
+
+      let bestAxis = null;
+      let bestScore = -1;
+      let matchedSign = 0;
+
+      const dTheta = 0.25;
+      const dragDir = deltaPixel.clone();
+      if (dragDir.lengthSq() < 1e-6) return null;
+      dragDir.normalize();
+
+      candidateAxes.forEach(axis => {
+        const axisVec = new THREE.Vector3(axis === 'x' ? 1 : 0, axis === 'y' ? 1 : 0, axis === 'z' ? 1 : 0);
+
+        // 微旋转 +dθ 后，观察该物理轴在当前视角下对应的屏幕切向。
+        const lRotPt = lStartPt.clone().applyAxisAngle(axisVec, dTheta);
+        const wRotPt = cubeGroup.localToWorld(lRotPt);
+        const ndcRot = wRotPt.project(camera);
+        const rotPixel = new THREE.Vector2(
+          ((ndcRot.x + 1) / 2) * width,
+          ((1 - ndcRot.y) / 2) * height
+        );
+
+        const rot2D = new THREE.Vector2(rotPixel.x - start2D.x, rotPixel.y - start2D.y);
+        if (rot2D.lengthSq() < 1e-6) return;
+        rot2D.normalize();
+
+        // 使用归一化方向点积，只比较方向，不让透视长度和点击位置过度影响结果。
+        const score = dragDir.dot(rot2D);
+        if (Math.abs(score) > bestScore) {
+          bestScore = Math.abs(score);
+          bestAxis = axis;
+          matchedSign = Math.sign(score);
+        }
+      });
+
+      // 方向置信度过低时不触发，避免斜向极小抖动导致错转。
+      if (!bestAxis || matchedSign === 0 || bestScore < 0.22) return null;
+
+      // 取得当前受力层索引：必须基于 cubie 当前坐标，而不是初始 grid 坐标。
+      const cubieLocalPos = getCubieLocalPosition(clickedCubie);
+      const layerIndex = localAxisValueToLayerIndex(cubieLocalPos[bestAxis]);
+
+      return mapPhysicalMoveToNotation(bestAxis, layerIndex, matchedSign);
+    }
+
+    // 物理层旋转座标转化为 WCA 标准魔方动作符号
+    function mapPhysicalMoveToNotation(axis, layerIndex, sign) {
+      const n = cubeSize;
+      if (!['x', 'y', 'z'].includes(axis)) return null;
+      if (!Number.isFinite(layerIndex) || layerIndex < 0 || layerIndex >= n) return null;
+      if (sign !== 1 && sign !== -1) return null;
+
+      /*
+        sign 表示用户拖拽希望产生的“物理旋转角度方向”：
+        +1 = 绕该坐标轴正方向旋转，-1 = 绕该坐标轴负方向旋转。
+
+        parseMoveNotation() 中各符号的默认物理角度方向为：
+        - 正侧外层/内层：R/U/F/r/u/f  => -90°
+        - 负侧外层/内层：L/D/B/l/d/b  => +90°
+        - 中层：M/E => +90°，S => -90°
+
+        原来的 4/5 阶分支手写补偿时漏掉了 z 轴负侧内层 b，
+        造成 4 阶 b 层、5 阶 b 层等拖拽方向与实际转动相反。
+        这里统一由“基础符号 + 默认物理方向”推导是否加 prime，
+        这样 3/4/5 阶所有行/列/层都和拖拽方向保持一致。
+      */
+
+      const maxLayer = n - 1;
+      const positiveOuter = {
+        x: 'R',
+        y: 'U',
+        z: 'F'
+      };
+      const negativeOuter = {
+        x: 'L',
+        y: 'D',
+        z: 'B'
+      };
+      const positiveInner = {
+        x: 'r',
+        y: 'u',
+        z: 'f'
+      };
+      const negativeInner = {
+        x: 'l',
+        y: 'd',
+        z: 'b'
+      };
+      const middleLayer = {
+        x: 'M',
+        y: 'E',
+        z: 'S'
+      };
+
+      let base = null;
+      let defaultSign = 0;
+
+      if (layerIndex === maxLayer) {
+        // 正侧外层：R/U/F 默认是 -90°
+        base = positiveOuter[axis];
+        defaultSign = -1;
+      } else if (layerIndex === 0) {
+        // 负侧外层：L/D/B 默认是 +90°
+        base = negativeOuter[axis];
+        defaultSign = 1;
+      } else if (n % 2 === 1 && layerIndex === Math.floor(n / 2)) {
+        // 单数阶中层：M/E 默认 +90°，S 默认 -90°
+        base = middleLayer[axis];
+        defaultSign = axis === 'z' ? -1 : 1;
+      } else if (layerIndex > Math.floor((n - 1) / 2)) {
+        // 靠近正侧的内层：r/u/f 默认跟 R/U/F 一致，即 -90°
+        base = positiveInner[axis];
+        defaultSign = -1;
+      } else {
+        // 靠近负侧的内层：l/d/b 默认跟 L/D/B 一致，即 +90°
+        base = negativeInner[axis];
+        defaultSign = 1;
+      }
+
+      if (!base) return null;
+      return base + (sign === defaultSign ? "" : "'");
+    }
+
+    // -------------------------------------------------------------
+    // 5. 键盘竞速级按键监听映射
+    // -------------------------------------------------------------
+    function onKeyDown(e) {
+      // 避免输入框冲突
+      if (document.activeElement.tagName === 'INPUT' || 
+          document.activeElement.tagName === 'TEXTAREA' || 
+          document.activeElement.tagName === 'SELECT') {
+        return;
+      }
+
+      // 空格键计时器触发
+      if (e.code === 'Space') {
+        e.preventDefault();
+        triggerWcaTimerHold();
+        return;
+      }
+
+      // 退出计时
+      if (e.code === 'Escape') {
+        if (currentTimerState === TIMER_STATE.RUNNING) {
+          stopWcaTimer(false);
+          showToast("本次计时速拧已取消");
+        }
+        return;
+      }
+
+      const key = e.key.toUpperCase();
+      const faces = ['U', 'D', 'L', 'R', 'F', 'B'];
+      const slice = ['M', 'E', 'S'];
+      const rots = ['X', 'Y', 'Z'];
+
+      if (faces.includes(key)) {
+        e.preventDefault();
+        const isShift = e.shiftKey;
+        const isAlt = e.altKey;
+        const isCtrl = e.ctrlKey || e.metaKey;
+
+        let notation = key;
+        if (isCtrl && isAlt && cubeSize >= 5) {
+          notation += 'w3';
+        } else if (isCtrl && cubeSize >= 4) {
+          notation += 'w';
+        } else if (isAlt && cubeSize >= 4) {
+          notation = key.toLowerCase();
+        }
+
+        if (isShift) notation += "'";
+        enqueueMove(notation);
+        return;
+      }
+
+      if (slice.includes(key)) {
+        e.preventDefault();
+        let notation = key + (e.shiftKey ? "'" : "");
+        enqueueMove(notation);
+        return;
+      }
+
+      if (rots.includes(key)) {
+        e.preventDefault();
+        let notation = key + (e.shiftKey ? "'" : "");
+        enqueueMove(notation);
+      }
+    }
+
+    function onKeyUp(e) {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        triggerWcaTimerRelease();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 6. WCA 专业速拧计时器状态机
+    // -------------------------------------------------------------
+    function focusTimerMode() {
+      // 锁定焦点
+      document.activeElement.blur();
+      showToast("請長按 [Space 空格鍵] 準備速拧计时");
+    }
+
+    function triggerWcaTimerHold() {
+      if (currentTimerState === TIMER_STATE.RUNNING) {
+        // 若在计时，按下空格立刻停止！
+        stopWcaTimer(true);
+        return;
+      }
+
+      if (currentTimerState !== TIMER_STATE.IDLE) return;
+
+      currentTimerState = TIMER_STATE.READY_WAITING;
+      timerHoldStart = performance.now();
+
+      const overlay = document.getElementById('timerOverlay');
+      const num = document.getElementById('timerBigNumber');
+      const tip = document.getElementById('timerOverlayTip');
+
+      overlay.classList.add('show');
+      num.textContent = "0.00";
+      num.className = "timer-number waiting";
+      tip.textContent = "按住空格键准备...";
+
+      // 实时监测蓄力是否达到 0.5s 进入 READY 状态
+      timerHoldInterval = setInterval(() => {
+        const elapsed = performance.now() - timerHoldStart;
+        if (elapsed >= 500) {
+          currentTimerState = TIMER_STATE.READY;
+          num.className = "timer-number ready";
+          tip.textContent = "松开空格，立刻计时！";
+          clearInterval(timerHoldInterval);
+        }
+      }, 30);
+    }
+
+    function triggerWcaTimerRelease() {
+      if (currentTimerState === TIMER_STATE.READY_WAITING) {
+        // 未满 0.5s 提前松开，视为取消准备
+        clearInterval(timerHoldInterval);
+        currentTimerState = TIMER_STATE.IDLE;
+        document.getElementById('timerOverlay').classList.remove('show');
+      } else if (currentTimerState === TIMER_STATE.READY) {
+        // 完美蓄力，松开即刻启动计时！
+        currentTimerState = TIMER_STATE.RUNNING;
+        timerStartInstant = performance.now();
+        totalMoves = 0;
+        document.getElementById('moveCount').textContent = '0';
+
+        const num = document.getElementById('timerBigNumber');
+        const tip = document.getElementById('timerOverlayTip');
+        num.className = "timer-number";
+        tip.textContent = "计时中，复原后自动停表...";
+
+        // 启动高频屏幕渲染刷新 (16ms间隔)
+        timerDrawInterval = setInterval(() => {
+          if (timerStartInstant > 0) {
+            const time = (performance.now() - timerStartInstant) / 1000;
+            num.textContent = time.toFixed(2);
+          }
+        }, 16);
+      }
+    }
+
+    function stopWcaTimer(saveRecord) {
+      if (currentTimerState !== TIMER_STATE.RUNNING) return;
+      currentTimerState = TIMER_STATE.IDLE;
+
+      clearInterval(timerDrawInterval);
+      const elapsed = (performance.now() - timerStartInstant) / 1000;
+      timerStartInstant = 0;
+
+      document.getElementById('timerOverlay').classList.remove('show');
+
+      const solved = updateCubeSolvedStatus();
+      if (saveRecord && totalMoves > 0 && !solved) {
+        showToast("魔方尚未复原，本次计时未保存");
+        return;
+      }
+
+      if (saveRecord && totalMoves > 0 && solved) {
+        const tps = totalMoves / elapsed;
+        showToast(`🎉 成功復原！時間: ${elapsed.toFixed(2)}s | TPS: ${tps.toFixed(2)}`);
+        
+        // 爆彩超新星烟火爆发特效！
+        triggerSupernovaParticles();
+
+        // 写入 Stats 看板
+        const record = {
+          time: Number(elapsed.toFixed(2)),
+          moves: totalMoves,
+          tps: Number(tps.toFixed(2)),
+          date: getFormatDate()
+        };
+
+        statsData.scores.unshift(record);
+        if (statsData.scores.length > 50) statsData.scores.pop(); // 队列上限 50 次
+
+        // 刷新 PB 记录
+        if (!statsData.pb || record.time < statsData.pb) {
+          statsData.pb = record.time;
+          showToast(`🌟 突破個人紀錄 (PB)！`);
+        }
+
+        // 刷新最大手速记录
+        if (!statsData.maxTps || record.tps > statsData.maxTps) {
+          statsData.maxTps = record.tps;
+        }
+
+        saveStatsToStorage();
+        updateStatsUI();
+      }
+    }
+
+    function getFormatDate() {
+      const d = new Date();
+      return `${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+    }
+
+    // -------------------------------------------------------------
+    // 7. WCA 官方 3x3 打乱公式算法
+    // -------------------------------------------------------------
+    function toggleWcaMode() {
+      if (isExecutingMove || currentTimerState === TIMER_STATE.RUNNING) {
+        showToast("请等待当前旋转或计时结束后再切换 WCA 模式");
+        return;
+      }
+      isWcaModeActive = !isWcaModeActive;
+      const btn = document.getElementById('wcaSwitchBtn');
+      const banner = document.getElementById('wcaScrambleBanner');
+      
+      btn.textContent = `竞速打乱模式：${isWcaModeActive ? '开' : '关'}`;
+      btn.classList.toggle('active', isWcaModeActive);
+
+      if (isWcaModeActive && cubeSize === 3) {
+        generateWcaScramble();
+        banner.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    function generateWcaScramble() {
+      if (isExecutingMove || currentTimerState === TIMER_STATE.RUNNING) {
+        showToast("请等待当前旋转或计时结束后再生成 WCA 打乱");
+        return;
+      }
+      const faces = ['U', 'D', 'R', 'L', 'F', 'B'];
+      const suffixes = ["", "'", "2"];
+      const length = 20 + Math.floor(Math.random() * 4); // 通常 20-23 步
+
+      let scramble = [];
+      let lastAxis = -1;
+      const axisMap = { U: 0, D: 0, R: 1, L: 1, F: 2, B: 2 };
+
+      for (let i = 0; i < length; i++) {
+        let f, currentAxis;
+        do {
+          f = faces[Math.floor(Math.random() * faces.length)];
+          currentAxis = axisMap[f];
+        } while (currentAxis === lastAxis);
+
+        lastAxis = currentAxis;
+        scramble.push(f + suffixes[Math.floor(Math.random() * suffixes.length)]);
+      }
+
+      wcaScrambleSequence = scramble;
+      const formulaEl = document.getElementById('wcaScrambleFormula');
+      formulaEl.textContent = scramble.join(' ');
+
+      // 把魔方物理状态重置并转动到打乱后状态。重置时禁止 buildCube 再次自动触发 WCA 打乱，避免递归卡死。
+      instantResetCube({ skipAutoWcaScramble: true, silent: true });
+      moveQueue.length = 0;
+      scramble.forEach(m => moveQueue.push({
+        notation: m,
+        options: { recordHistory: false, updateGuide: false }
+      }));
+      processMoveQueue();
+      document.getElementById('moveCount').textContent = '0';
+      updateHistoryUI();
+    }
+
+    // -------------------------------------------------------------
+    // 8. 智能 Kociemba 3阶还原与 3D 高亮弯曲箭头教学指引
+    // -------------------------------------------------------------
+    let tutorArrows = []; // 指引箭头网格
+
+    function triggerSmartSolve() {
+      if (cubeSize !== 3) {
+        // 4/5 阶采取历史逆序时光还原
+        runTimeSolveFallback();
+        return;
+      }
+
+      if (updateCubeSolvedStatus()) {
+        showToast("魔方已是还原状态");
+        return;
+      }
+
+      showToast("正在解析三階最優還原序列...");
+      const progressBar = document.getElementById('solveProgress');
+      progressBar.style.width = '20%';
+
+      setTimeout(() => {
+        try {
+          const stateStr = readCubeStateStr();
+          if (stateStr && stateStr.length === 54) {
+            // 调用 Kociemba solver
+            const solution = kociemba.solve(stateStr);
+            if (solution && solution.length > 0) {
+              solveGuideSequence = solution.split(' ');
+              solveGuideIndex = 0;
+              progressBar.style.width = '100%';
+              setTimeout(() => progressBar.style.width = '0%', 400);
+
+              // 启动分步教学指南！
+              activateSolveTutorMode();
+            } else {
+              throw new Error("Kociemba 返回空序列");
+            }
+          } else {
+            throw new Error("座标状态映射未满54个贴纸面");
+          }
+        } catch (err) {
+          console.error(err);
+          progressBar.style.width = '0%';
+          showToast("Kociemba求解失敗，改用歷史時光還原");
+          runTimeSolveFallback();
+        }
+      }, 50);
+    }
+
+    // 读取物理立方体当前的状态，精确还原为 Kociemba 规格字符串
+    function readCubeStateStr() {
+      if (cubeSize !== 3) return null;
+
+      cubeGroup.updateMatrixWorld(true);
+      const faceCubieData = { U: [], D: [], L: [], R: [], F: [], B: [] };
+      const faceConfigs = [
+        { name: 'U', axis: 'y', val: 1.0, center: [0, 1, 0], sort: p => (p.z * 10 + p.x) },
+        { name: 'D', axis: 'y', val: -1.0, center: [0, -1, 0], sort: p => (-p.z * 10 + p.x) },
+        { name: 'R', axis: 'x', val: 1.0, center: [1, 0, 0], sort: p => (-p.y * 10 - p.z) },
+        { name: 'L', axis: 'x', val: -1.0, center: [-1, 0, 0], sort: p => (-p.y * 10 + p.z) },
+        { name: 'F', axis: 'z', val: 1.0, center: [0, 0, 1], sort: p => (-p.y * 10 + p.x) },
+        { name: 'B', axis: 'z', val: -1.0, center: [0, 0, -1], sort: p => (-p.y * 10 - p.x) }
+      ];
+
+      const getStickerColorFacing = (cubie, faceName) => {
+        const faceNormal = FACE_NORMALS[faceName];
+        let foundColor = null;
+        cubie.children.forEach(child => {
+          if (foundColor) return;
+          if (child.name && child.name.startsWith('sticker-')) {
+            const localDir = child.userData.normal.clone().applyQuaternion(cubie.quaternion).normalize();
+            if (localDir.dot(faceNormal) > 0.85) {
+              foundColor = child.userData.color;
+            }
+          }
+        });
+        return foundColor;
+      };
+
+      // 用当前 6 个中心贴纸建立颜色 -> 当前面名映射。这样 M/E/S 与 x/y/z 后也不会继续使用初始中心块。
+      const dynamicColorToFaceChar = {};
+      for (const fc of faceConfigs) {
+        const centerCubie = cubies.find(c => {
+          const p = getCubieLocalPosition(c);
+          return Math.abs(p.x - fc.center[0]) < 0.15 && Math.abs(p.y - fc.center[1]) < 0.15 && Math.abs(p.z - fc.center[2]) < 0.15;
+        });
+        if (!centerCubie) {
+          console.error(`无法定位当前中心块 ${fc.name}`);
+          return null;
+        }
+        const color = getStickerColorFacing(centerCubie, fc.name);
+        if (!color) {
+          console.error(`无法读取当前中心贴纸 ${fc.name}`);
+          return null;
+        }
+        dynamicColorToFaceChar[String(color)] = fc.name;
+      }
+
+      faceConfigs.forEach(fc => {
+        const onFaceCubies = cubies.map(c => ({ cubie: c, pos: getCubieLocalPosition(c) }))
+          .filter(item => Math.abs(item.pos[fc.axis] - fc.val) < 0.15)
+          .sort((a, b) => fc.sort(a.pos) - fc.sort(b.pos));
+
+        onFaceCubies.forEach(item => {
+          const color = getStickerColorFacing(item.cubie, fc.name);
+          faceCubieData[fc.name].push(dynamicColorToFaceChar[String(color)] || fc.name);
+        });
+      });
+
+      let finalString = '';
+      ['U', 'R', 'F', 'D', 'L', 'B'].forEach(face => {
+        finalString += faceCubieData[face].join('');
+      });
+      return finalString;
+    }
+
+    // 激活公式教学系统
+    function activateSolveTutorMode() {
+      const banner = document.getElementById('solveGuideBanner');
+      banner.style.display = 'block';
+      renderTutorStepTags();
+      drawTutorGlowArrows();
+    }
+
+    function renderTutorStepTags() {
+      const container = document.getElementById('solveGuideSteps');
+      container.innerHTML = '';
+      solveGuideSequence.forEach((move, idx) => {
+        const span = document.createElement('span');
+        span.className = `history-tag ${idx === solveGuideIndex ? 'guide-active' : ''}`;
+        span.textContent = move;
+        container.appendChild(span);
+      });
+    }
+
+    // 在 3D 空间绘制霓虹指引箭头
+    function drawTutorGlowArrows() {
+      // 移除原先的箭头
+      tutorArrows.forEach(arr => {
+        scene.remove(arr);
+        disposeObject3D(arr);
+      });
+      tutorArrows = [];
+
+      if (solveGuideIndex >= solveGuideSequence.length) return;
+
+      const nextMove = solveGuideSequence[solveGuideIndex];
+      const parsed = parseMoveNotation(nextMove);
+      const { axis, layers, angle } = parsed;
+
+      // 围绕轴心和对应物理层绘制发光的三维圆弧指示器
+      const axisVec = new THREE.Vector3(axis==='x'?1:0, axis==='y'?1:0, axis==='z'?1:0);
+      const radius = cubeSize * 0.72;
+      const thickness = 0.05;
+
+      const arrowGroup = new THREE.Group();
+
+      // 构造一段圆弧箭头
+      const arcGeo = new THREE.TorusGeometry(radius, thickness, 6, 40, Math.PI * 0.72);
+      const arrowMat = new THREE.MeshBasicMaterial({
+        color: 0x8b5cf6, // 紫色极光指引
+        transparent: true,
+        opacity: 0.65,
+        blending: THREE.AdditiveBlending
+      });
+      const arcMesh = new THREE.Mesh(arcGeo, arrowMat);
+      
+      // 指向标
+      const coneGeo = new THREE.ConeGeometry(thickness * 2.8, thickness * 5, 4);
+      const coneMesh = new THREE.Mesh(coneGeo, arrowMat);
+      coneMesh.position.set(radius, 0, 0);
+      coneMesh.rotation.z = Math.PI;
+
+      arrowGroup.add(arcMesh);
+      arrowGroup.add(coneMesh);
+
+      // 定位到该旋转的层重心
+      const layerVal = layers[0];
+      if (axis === 'y') {
+        arrowGroup.position.set(0, layerVal, 0);
+        arrowGroup.rotation.x = Math.PI / 2;
+        if (angle < 0) arrowGroup.rotation.y = Math.PI; // 调转顺逆
+      } else if (axis === 'x') {
+        arrowGroup.position.set(layerVal, 0, 0);
+        arrowGroup.rotation.y = Math.PI / 2;
+        if (angle < 0) arrowGroup.rotation.x = Math.PI;
+      } else if (axis === 'z') {
+        arrowGroup.position.set(0, 0, layerVal);
+        if (angle < 0) arrowGroup.rotation.y = Math.PI;
+      }
+
+      scene.add(arrowGroup);
+      tutorArrows.push(arrowGroup);
+    }
+
+    function updateTutorGuideState(moveDone) {
+      if (solveGuideSequence.length === 0) return;
+
+      const currentTarget = solveGuideSequence[solveGuideIndex];
+      // 支持选手自己拧对了，自动进入下一步！
+      if (moveDone === currentTarget) {
+        solveGuideIndex++;
+        if (solveGuideIndex >= solveGuideSequence.length) {
+          solveGuideSequence = [];
+          document.getElementById('solveGuideBanner').style.display = 'none';
+          showToast("恭喜學完還原步驟！✨");
+        } else {
+          renderTutorStepTags();
+          drawTutorGlowArrows();
+        }
+      } else {
+        // 如果拧错了，重新在 3D 重新聚焦当前这步！
+        drawTutorGlowArrows();
+      }
+    }
+
+    // 时光逆序还原兜底
+    async function runTimeSolveFallback() {
+      if (moveHistory.length === 0) {
+        showToast("历史操作为空，无法时光还原");
+        return;
+      }
+      if (isExecutingMove || moveQueue.length > 0) {
+        showToast("请等待当前旋转完成后再还原");
+        return;
+      }
+
+      const originalHistory = [...moveHistory];
+      const inverseSeq = originalHistory.reverse().map(invertMoveNotation);
+
+      showToast(`启动时光还原：${inverseSeq.length} 步`);
+      const progressBar = document.getElementById('solveProgress');
+      isExecutingMove = true;
+
+      try {
+        for (let i = 0; i < inverseSeq.length; i++) {
+          const progress = ((i + 1) / inverseSeq.length) * 100;
+          progressBar.style.width = `${progress}%`;
+          await executeMoveStep(inverseSeq[i], BASE_DURATION / Math.max(1, SPEED_MULTIPLIERS[animSpeedLevel]), {
+            recordHistory: false,
+            updateGuide: false
+          });
+        }
+        moveHistory = [];
+        totalMoves = 0;
+        document.getElementById('moveCount').textContent = '0';
+        updateHistoryUI();
+        updateCubeSolvedStatus();
+        showToast("魔方时光还原成功 ✨");
+      } catch (err) {
+        console.error(err);
+        showToast("时光还原中断，请检查公式历史");
+      } finally {
+        isExecutingMove = false;
+        progressBar.style.width = '0%';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 9. 星尘粒子特效爆发
+    // -------------------------------------------------------------
+    function triggerStarBurst(axis, layers, activeCubies) {
+      if (!isParticleSpellEnabled) return;
+
+      const layerVal = layers === 'all' ? 0 : layers[0];
+      const count = 38;
+
+      const geo = new THREE.BufferGeometry();
+      const posArr = [];
+      const velArr = [];
+
+      // 围绕当前旋转切面的外侧环状边缘生成爆发粒子
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = cubeSize * 0.58 + Math.random() * 0.2;
+        
+        let x = 0, y = 0, z = 0;
+        let vx = 0, vy = 0, vz = 0;
+
+        if (axis === 'y') {
+          x = radius * Math.cos(angle);
+          y = layerVal;
+          z = radius * Math.sin(angle);
+          vx = Math.cos(angle) * 0.05;
+          vz = Math.sin(angle) * 0.05;
+        } else if (axis === 'x') {
+          x = layerVal;
+          y = radius * Math.cos(angle);
+          z = radius * Math.sin(angle);
+          vy = Math.cos(angle) * 0.05;
+          vz = Math.sin(angle) * 0.05;
+        } else {
+          x = radius * Math.cos(angle);
+          y = radius * Math.sin(angle);
+          z = layerVal;
+          vx = Math.cos(angle) * 0.05;
+          vy = Math.sin(angle) * 0.05;
+        }
+
+        posArr.push(x, y, z);
+        velArr.push(vx, vy, vz);
+      }
+
+      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(posArr), 3));
+      
+      const mat = new THREE.PointsMaterial({
+        color: 0x00e5a0,
+        size: 0.12,
+        transparent: true,
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+
+      const pSys = new THREE.Points(geo, mat);
+      pSys.userData = {
+        velocities: velArr,
+        birth: performance.now(),
+        life: 580 // 粒子生命周期(ms)
+      };
+
+      cubeGroup.add(pSys);
+      starParticles.push(pSys);
+    }
+
+    // 复原爆发
+    function triggerSupernovaParticles() {
+      if (!isParticleSpellEnabled) return;
+
+      const count = 300;
+      const geo = new THREE.BufferGeometry();
+      const posArr = [];
+      const velArr = [];
+      const colorArr = [];
+
+      const rgbColors = [0x00e5a0, 0x0984E3, 0x8b5cf6, 0xff3d71, 0xFED330];
+
+      for (let i = 0; i < count; i++) {
+        posArr.push(0, 0, 0);
+
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos((Math.random() * 2) - 1);
+        const v = 0.08 + Math.random() * 0.14;
+
+        velArr.push(
+          v * Math.sin(phi) * Math.cos(theta),
+          v * Math.sin(phi) * Math.sin(theta),
+          v * Math.cos(phi)
+        );
+
+        // 随机彩蛋颜色
+        const c = new THREE.Color(rgbColors[i % rgbColors.length]);
+        colorArr.push(c.r, c.g, c.b);
+      }
+
+      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(posArr), 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colorArr), 3));
+
+      const mat = new THREE.PointsMaterial({
+        size: 0.14,
+        vertexColors: true,
+        transparent: true,
+        opacity: 1.0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+
+      const pSys = new THREE.Points(geo, mat);
+      pSys.userData = {
+        velocities: velArr,
+        birth: performance.now(),
+        life: 1400
+      };
+
+      scene.add(pSys); // 直接挂在 scene 下，不随魔方旋转
+      starParticles.push(pSys);
+    }
+
+    function updateParticles(now) {
+      const deadParticles = [];
+
+      starParticles.forEach(pSys => {
+        const age = now - pSys.userData.birth;
+        const life = pSys.userData.life;
+        if (age >= life) {
+          deadParticles.push(pSys);
+          return;
+        }
+
+        const ratio = 1 - (age / life);
+        pSys.material.opacity = ratio;
+
+        const posAttr = pSys.geometry.attributes.position;
+        const velocities = pSys.userData.velocities;
+
+        for (let i = 0; i < posAttr.count; i++) {
+          posAttr.array[i * 3] += velocities[i * 3];
+          posAttr.array[i * 3 + 1] += velocities[i * 3 + 1];
+          posAttr.array[i * 3 + 2] += velocities[i * 3 + 2];
+          
+          // 加一点微弱空气阻力
+          velocities[i * 3] *= 0.98;
+          velocities[i * 3 + 1] *= 0.98;
+          velocities[i * 3 + 2] *= 0.98;
+        }
+        posAttr.needsUpdate = true;
+      });
+
+      deadParticles.forEach(pSys => {
+        if (pSys.parent) pSys.parent.remove(pSys);
+        disposeObject3D(pSys);
+        const idx = starParticles.indexOf(pSys);
+        if (idx !== -1) starParticles.splice(idx, 1);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // 10. UI & 成绩持久化模块
+    // -------------------------------------------------------------
+    function updateCubeSolvedStatus() {
+      const solved = checkIsCubeSolved();
+      const statusEl = document.getElementById('cubeSolvedText');
+      statusEl.textContent = solved ? "已复原" : "乱序中";
+      statusEl.style.color = solved ? "var(--accent-cyan)" : "var(--accent-rose)";
+      statusEl.style.textShadow = solved ? "0 0 10px rgba(0, 229, 160, 0.4)" : "none";
+      return solved;
+    }
+
+    function checkIsCubeSolved() {
+      // 遍历 6 个面，确认每面块的颜色是否高度统一
+      const faceGroupMap = { U: [], D: [], L: [], R: [], F: [], B: [] };
+
+      cubies.forEach(c => {
+        c.children.forEach(child => {
+          if (child.name && child.name.startsWith('sticker-')) {
+            const worldDir = child.userData.normal.clone().applyQuaternion(c.quaternion).normalize();
+            
+            // 匹配此贴纸指向的面
+            for (let fName in FACE_NORMALS) {
+              const normal = FACE_NORMALS[fName];
+              if (worldDir.dot(normal) > 0.85) {
+                faceGroupMap[fName].push(child.userData.color);
+              }
+            }
+          }
+        });
+      });
+
+      // 验证每个面块数和颜色纯度
+      const correctLen = cubeSize * cubeSize;
+      for (let fName in faceGroupMap) {
+        const arr = faceGroupMap[fName];
+        if (arr.length !== correctLen) return false;
+        const colorSet = new Set(arr);
+        if (colorSet.size !== 1) return false;
+      }
+      return true;
+    }
+
+    function changeCubeOrder(size) {
+      if (isExecutingMove || currentTimerState === TIMER_STATE.RUNNING) return;
+      buildCube(parseInt(size, 10));
+      showToast(`已切换至 ${size}阶 魔方`);
+    }
+
+    function instantResetCube(options = {}) {
+      if (isExecutingMove || currentTimerState === TIMER_STATE.RUNNING) return;
+      moveQueue.length = 0;
+      const skipAutoWcaScramble = options.skipAutoWcaScramble !== undefined ? !!options.skipAutoWcaScramble : true;
+      buildCube(cubeSize, { skipAutoWcaScramble });
+      if (!options.silent) showToast("魔方物理重置完毕");
+    }
+
+    function changeAnimSpeed(level, btn) {
+      animSpeedLevel = level;
+      document.querySelectorAll('#speedSelector button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function toggleCubeFloat() {
+      isFloatEnabled = !isFloatEnabled;
+      const btn = document.getElementById('floatSpellBtn');
+      btn.classList.toggle('active', isFloatEnabled);
+      btn.textContent = `星河漂浮：${isFloatEnabled ? '开' : '关'}`;
+    }
+
+    function toggleParticleSpell() {
+      isParticleSpellEnabled = !isParticleSpellEnabled;
+      const btn = document.getElementById('particleSpellBtn');
+      btn.classList.toggle('active', isParticleSpellEnabled);
+      btn.textContent = `星尘爆发：${isParticleSpellEnabled ? '开' : '关'}`;
+    }
+
+    function updateHistoryUI() {
+      const box = document.getElementById('globalHistoryBox');
+      if (!box) return;
+      box.innerHTML = '';
+      if (moveHistory.length === 0) {
+        const empty = document.createElement('span');
+        empty.style.fontSize = '0.7rem';
+        empty.style.color = 'var(--text-muted)';
+        empty.textContent = '暂无公式历史记录';
+        box.appendChild(empty);
+        return;
+      }
+
+      // 保留最后 30 步展示，以免内存爆栈；使用 textContent 防止公式输入注入 HTML。
+      const recent = moveHistory.slice(-30);
+      recent.forEach(m => box.appendChild(makeHistoryTag(m)));
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function updateStatsUI() {
+      document.getElementById('pbDisplay').textContent = statsData.pb ? `${statsData.pb.toFixed(2)}s` : '--';
+      document.getElementById('tpsDisplay').textContent = statsData.maxTps ? `${statsData.maxTps.toFixed(2)}` : '--';
+      
+      // 算 Ao5 (近 5 次成绩平均，排除一个最好和一个最差)
+      document.getElementById('ao5Display').textContent = calcAvgOfN(5);
+      // 算 Ao12 (近 12 次成绩平均，排除一个最好和一个最差)
+      document.getElementById('ao12Display').textContent = calcAvgOfN(12);
+
+      // 渲染列表
+      const listEl = document.getElementById('scoresHistoryList');
+      if (statsData.scores.length === 0) {
+        listEl.innerHTML = `<div style="font-size: 0.7rem; color: var(--text-muted); padding: 8px; text-align: center;">暂无速拧记录</div>`;
+        return;
+      }
+
+      listEl.innerHTML = statsData.scores.map((s, idx) => `
+        <div class="score-item">
+          <span>#${statsData.scores.length - idx} [${s.date}]</span>
+          <span>${s.time}s (${s.moves}步 / ${s.tps} TPS)</span>
+        </div>
+      `).join('');
+    }
+
+    function calcAvgOfN(n) {
+      if (statsData.scores.length < n) return '--';
+      const subset = statsData.scores.slice(0, n).map(x => x.time);
+      // 竞速级：去掉一个最高和一个最低，求剩下的平均值
+      subset.sort((a,b) => a - b);
+      subset.pop();
+      subset.shift();
+
+      let sum = 0;
+      subset.forEach(v => sum += v);
+      return `${(sum / subset.length).toFixed(2)}s`;
+    }
+
+    function loadStatsFromStorage() {
+      try {
+        const stored = localStorage.getItem('apex_cube_stats_2026');
+        if (!stored) return;
+        const parsed = JSON.parse(stored);
+        statsData = {
+          pb: Number.isFinite(parsed && parsed.pb) ? parsed.pb : null,
+          maxTps: Number.isFinite(parsed && parsed.maxTps) ? parsed.maxTps : null,
+          scores: Array.isArray(parsed && parsed.scores)
+            ? parsed.scores.filter(s => s && Number.isFinite(s.time)).slice(0, 50)
+            : []
+        };
+      } catch(err) {
+        console.error(err);
+        statsData = { ...DEFAULT_STATS_DATA, scores: [] };
+      }
+    }
+
+    function saveStatsToStorage() {
+      try {
+        localStorage.setItem('apex_cube_stats_2026', JSON.stringify(statsData));
+      } catch(err) {
+        console.error(err);
+      }
+    }
+
+    // 公式施放
+    function castAlgorithm() {
+      if (isExecutingMove || currentTimerState === TIMER_STATE.RUNNING) return;
+      const val = document.getElementById('algorithmInput').value;
+      if (!val) {
+        showToast("公式内容为空");
+        return;
+      }
+
+      // 将粘贴公式以空格分拣，清洗冗余逗号
+      const clean = val.replace(/[,;，；]/g, ' ').split(/\s+/).filter(Boolean);
+      try {
+        clean.forEach(m => parseMoveNotation(m));
+      } catch (err) {
+        showToast(err.message || "公式中包含非法符号");
+        return;
+      }
+      clean.forEach(m => moveQueue.push(m));
+      processMoveQueue();
+      showToast(`正在施放公式：${clean.length}步`);
+    }
+
+    function invertAlgorithmText() {
+      const el = document.getElementById('algorithmInput');
+      if (!el.value) return;
+      const clean = el.value.replace(/[,;，；]/g, ' ').split(/\s+/).filter(Boolean);
+      
+      // 生成镜像反转
+      const inverted = clean.reverse().map(m => {
+        return m.includes("'") ? m.replace("'", "") : m + "'";
+      });
+      el.value = inverted.join(' ');
+      showToast("已成功镜像反向填入");
+    }
+
+    function copyHistoryToClipboard() {
+      if (moveHistory.length === 0) return;
+      const str = moveHistory.join(' ');
+      const fallback = () => {
+        document.getElementById('algorithmInput').value = str;
+        showToast("浏览器不允许直接复制，已填入公式框");
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(str).then(() => {
+          showToast("历史公式已复制到剪切板 📋");
+        }).catch(fallback);
+      } else {
+        fallback();
+      }
+    }
+
+    function clearHistory() {
+      moveHistory = [];
+      totalMoves = 0;
+      document.getElementById('moveCount').textContent = '0';
+      updateHistoryUI();
+      showToast("历史记录已清空，当前魔方状态保持");
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('globalToast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el.timer);
+      el.timer = setTimeout(() => el.classList.remove('show'), 2400);
+    }
+
+    function triggerMoveBtn(move) {
+      enqueueMove(move);
+    }
+
+    function toggleAside() {
+      document.getElementById('controlPanel').classList.toggle('open');
+    }
+
+    // -------------------------------------------------------------
+    // 11. 3D 主渲染 tick 循环 ( requestAnimationFrame )
+    // -------------------------------------------------------------
+    function animate(timestamp) {
+      requestAnimationFrame(animate);
+
+      const sec = timestamp * 0.001;
+
+      // 双向漂浮与惯性阻尼插值
+      currentRotX += (targetRotX - currentRotX) * 0.09;
+      currentRotY += (targetRotY - currentRotY) * 0.09;
+      currentZoom += (targetZoom - currentZoom) * 0.09;
+
+      cubeGroup.rotation.x = currentRotX;
+      cubeGroup.rotation.y = currentRotY;
+      camera.position.z = currentZoom;
+
+      // 惯性星河漂浮与霓虹光环自旋转
+      if (isFloatEnabled && !isExecutingMove && !isViewDragging && !isStickerDragging && !suppressViewUntilPointerUp && currentTimerState !== TIMER_STATE.RUNNING) {
+        cubeGroup.position.y = Math.sin(sec * 1.2) * 0.06;
+        cubeGroup.rotation.y += 0.0012;
+      } else {
+        cubeGroup.position.y = 0;
+      }
+
+      if (cosmicAura) {
+        cosmicAura.rotation.x += 0.0016;
+        cosmicAura.rotation.y -= 0.0022;
+        cosmicAura.rotation.z += 0.001;
+      }
+
+      // 高频粒子演进与淡出
+      updateParticles(timestamp);
+
+      renderer.render(scene, camera);
+    }
+
+    // 视口自适应缩放
+    window.addEventListener('resize', () => {
+      const container = document.getElementById('canvas-viewport');
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+
+  </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
