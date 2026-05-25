@@ -1,203 +1,214 @@
 <div align="center">
 
-# 🪐 ApexCube Cosmic Lab
-
-### A premium WebGL Rubik’s Cube simulator for speedcubers, cube geeks, and interaction design lovers.
-
-一个面向魔方极客、速拧玩家与 3D 交互爱好者的高拟真魔方实验室。  
-集成多阶魔方、贴纸级拖拽、WCA 风格计时、成绩统计、公式执行、智能还原与宇宙级视觉动效。
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=280&color=0:030712,35:0F172A,70:312E81,100:00E5A0&text=ApexCube%20Cosmic%20Lab&fontColor=FFFFFF&fontSize=56&fontAlignY=38&desc=The%20next-generation%20WebGL%20Rubik%E2%80%99s%20Cube%20laboratory&descAlignY=58&descSize=18&animation=fadeIn" alt="ApexCube Cosmic Lab Hero" />
 
 <br />
 
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=24&duration=2600&pause=900&color=00E5A0&center=true&vCenter=true&width=900&lines=Sticker-level+3D+cube+interaction;WCA-inspired+timer+and+solve+analytics;Kociemba-powered+smart+restoration;A+cosmic+glassmorphism+cube+experience" alt="Typing SVG" />
+
+<br />
+<br />
+
 <p>
-  <img alt="HTML5" src="https://img.shields.io/badge/HTML5-0f172a?style=for-the-badge&logo=html5&logoColor=ff6b35">
-  <img alt="Three.js" src="https://img.shields.io/badge/Three.js-0f172a?style=for-the-badge&logo=three.js&logoColor=white">
-  <img alt="WebGL" src="https://img.shields.io/badge/WebGL-0f172a?style=for-the-badge&logo=webgl&logoColor=00e5a0">
-  <img alt="Rubik Cube" src="https://img.shields.io/badge/Rubik's_Cube-0f172a?style=for-the-badge&logoColor=white">
+  <a href="https://muskke.github.io/apexcube-cosmic-lab/" target="_blank">
+    <img src="https://img.shields.io/badge/🚀%20Launch%20Live%20Demo-00E5A0?style=for-the-badge&labelColor=030712&color=00E5A0" alt="Launch Live Demo" />
+  </a>
+  <a href="https://github.com/muskke/apexcube-cosmic-lab" target="_blank">
+    <img src="https://img.shields.io/badge/⭐%20Star%20on%20GitHub-8B5CF6?style=for-the-badge&labelColor=030712&color=8B5CF6" alt="Star on GitHub" />
+  </a>
+  <a href="https://github.com/muskke/apexcube-cosmic-lab/blob/main/LICENSE" target="_blank">
+    <img src="https://img.shields.io/badge/License-GPL--3.0-0984E3?style=for-the-badge&labelColor=030712" alt="GPL-3.0 License" />
+  </a>
 </p>
 
 <p>
-  <a href="#-features">Features</a> ·
-  <a href="#-quick-start">Quick Start</a> ·
-  <a href="#-controls">Controls</a> ·
-  <a href="#-architecture">Architecture</a> ·
-  <a href="#-roadmap">Roadmap</a>
+  <img src="https://img.shields.io/badge/Three.js-000000?style=flat-square&logo=three.js&logoColor=white" alt="Three.js" />
+  <img src="https://img.shields.io/badge/WebGL-990000?style=flat-square&logo=webgl&logoColor=white" alt="WebGL" />
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white" alt="HTML5" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white" alt="CSS3" />
+  <img src="https://img.shields.io/badge/Vanilla%20JS-F7DF1E?style=flat-square&logo=javascript&logoColor=111111" alt="Vanilla JavaScript" />
+  <img src="https://img.shields.io/badge/No%20Build%20Step-00E5A0?style=flat-square&logoColor=white" alt="No Build Step" />
 </p>
+
+<h3>
+  <a href="#-live-demo">Live Demo</a>
+  <span> · </span>
+  <a href="#-showcase">Showcase</a>
+  <span> · </span>
+  <a href="#-why-it-feels-premium">Highlights</a>
+  <span> · </span>
+  <a href="#-quick-start">Quick Start</a>
+  <span> · </span>
+  <a href="#-controls">Controls</a>
+  <span> · </span>
+  <a href="#-architecture">Architecture</a>
+</h3>
 
 <br />
 
-> **ApexCube Cosmic Lab** is not just a cube on a screen.  
-> It is a polished, interactive, high-fidelity cube playground built with Three.js — crafted for fast turning, visual immersion, and algorithm exploration.
+> **ApexCube Cosmic Lab** is a cinematic, high-fidelity Rubik’s Cube simulator built for speedcubers, cube geeks, and interaction design lovers.  
+> It blends physically consistent cubie logic with a premium cosmic interface, sticker-level gesture control, WCA-style timing, and smart algorithm workflows.
 
 </div>
 
 ---
-
-## ✨ Preview
-
-> Replace the placeholders below with your own screenshots or GitHub Pages demo link.
-
-<p align="center">
-  <img src="./assets/preview.png" alt="ApexCube Cosmic Lab Preview" width="920">
-</p>
 
 <div align="center">
 
-**Live Demo:** `https://muskke.github.io/apexcube-cosmic-lab/`
+## 🚀 Live Demo
+
+<a href="https://muskke.github.io/apexcube-cosmic-lab/" target="_blank">
+  <img src="https://img.shields.io/badge/Open%20ApexCube%20Cosmic%20Lab-Click%20to%20Enter-00E5A0?style=for-the-badge&labelColor=030712&color=00E5A0" alt="Open ApexCube Cosmic Lab" />
+</a>
+
+<br />
+<br />
+
+### [https://muskke.github.io/apexcube-cosmic-lab/](https://muskke.github.io/apexcube-cosmic-lab/)
 
 </div>
 
 ---
 
-## 🚀 Features
+## 🌠 Showcase
 
-### 🧊 Multi-order cube engine
+<p align="center">
+  <img src="./assets/preview.png" alt="ApexCube Cosmic Lab Preview" width="940" />
+</p>
+<br />
 
-ApexCube supports multiple cube orders with consistent physical behavior:
-
-- **3×3** standard speedcubing cube
-- **4×4** master cube with inner-layer moves
-- **5×5** advanced cube with middle-layer and multi-wide moves
-- Unified cubie-based state system
-- Smooth animated rotations with instant-turn support
-- Layer, wide-layer, middle-layer, and whole-cube rotations
-
----
-
-### 🖱️ Sticker-level gesture interaction
-
-The cube can be turned directly from the visible stickers.
-
-- Raycast-based sticker picking
-- Drag direction resolved in local 3D cube space
-- Physical layer detection from the touched sticker
-- Supports mouse and touch input
-- Prevents accidental camera dragging during sticker turns
-- Consistent drag-to-turn behavior across 3×3 / 4×4 / 5×5
-
-This makes the cube feel closer to a real physical puzzle instead of a button-only simulator.
-
----
-
-### ⚡ Speed-oriented move queue
-
-ApexCube includes a non-blocking move queue designed for rapid input.
-
-- Keyboard burst input support
-- Automatic acceleration when the queue grows
-- Smooth animation under normal use
-- Near-instant execution during high-speed formula input
-- Move history recording
-- Undo support
-
-The result is a cube that remains responsive even when formulas are entered aggressively.
+<table>
+  <tr>
+    <td width="33%" align="center">
+      <h3>🧊 Physical Cube Engine</h3>
+      <p>Real cubie-based layer operations across 3×3, 4×4, and 5×5 cubes.</p>
+    </td>
+    <td width="33%" align="center">
+      <h3>🖱️ Sticker-Level Dragging</h3>
+      <p>Raycast a visible sticker, drag in 3D space, and turn the correct layer.</p>
+    </td>
+    <td width="33%" align="center">
+      <h3>⏱️ WCA-Inspired Timer</h3>
+      <p>Practice with hold-to-ready timing, PB, Ao5, Ao12, TPS, and solve history.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="33%" align="center">
+      <h3>⚡ High-Speed Move Queue</h3>
+      <p>Non-blocking algorithm input with adaptive acceleration under heavy queues.</p>
+    </td>
+    <td width="33%" align="center">
+      <h3>🧠 Smart Solve Guide</h3>
+      <p>Kociemba-style 3×3 restoration pipeline with guided step progression.</p>
+    </td>
+    <td width="33%" align="center">
+      <h3>🌌 Cosmic UI System</h3>
+      <p>Glassmorphism panels, neon accents, floating aura, and particle bursts.</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
-### ⌨️ Keyboard speedcubing controls
+## ✨ Why It Feels Premium
 
-Built-in keyboard mapping covers standard and advanced moves.
-
-- `U D L R F B` outer-layer turns
-- `Shift + key` inverse turns
-- `Alt + key` inner-layer turns
-- `Ctrl + key` wide turns
-- `Ctrl + Alt + key` three-layer wide turns on 5×5
-- `M E S` middle-layer moves
-- `X Y Z` whole-cube rotations
-- `Space` WCA-style timer control
-- `Esc` timer cancel
-
----
-
-### 🧠 Algorithm console
-
-A dedicated algorithm input panel lets you run standard cube notation directly.
-
-Supported examples:
-
-```txt
-R U R' U'
-F R U R' U' F'
-Rw U Rw' U'
-M E S
-X Y Z
-```
-
-It also includes:
-
-- Formula execution
-- Formula inversion
-- Move archive
-- History copy
-- Clean reset
-
----
-
-### ⏱️ WCA-inspired timer dashboard
-
-ApexCube includes a built-in timing experience for practice sessions.
-
-- Hold-space preparation flow
-- Large fullscreen timer overlay
-- PB tracking
-- Ao5 / Ao12 statistics
-- TPS peak display
-- Recent solve history
-- Local persistent stats
-
----
-
-### 🪄 Smart solve and guide mode
-
-For 3×3 solving workflows, ApexCube integrates a Kociemba-based solving pipeline.
-
-- Smart solve trigger
-- Formula sequence generation
-- Step-by-step visual guide
-- Highlighted move progression
-- Progress feedback
-
-> Advanced solving for larger cubes is a future extension target.
+<table>
+  <tr>
+    <td width="50%">
+      <h3>🎯 Interaction that feels physical</h3>
+      <p>
+        ApexCube does not rely only on buttons. You can grab a visible sticker directly,
+        drag in 3D space, and let the simulator resolve the intended physical layer.
+      </p>
+      <ul>
+        <li>Raycast-based sticker picking</li>
+        <li>Local-space drag vector resolution</li>
+        <li>Accidental camera-drag suppression</li>
+        <li>Mouse and touch support</li>
+      </ul>
+    </td>
+    <td width="50%">
+      <h3>🧬 A real cubie model underneath</h3>
+      <p>
+        Every move is mapped to a real cube-layer operation. The visual rotation is tied
+        to a physical state system instead of being a surface-only illusion.
+      </p>
+      <ul>
+        <li>3×3, 4×4, and 5×5 cube orders</li>
+        <li>Outer, inner, wide, middle, and whole-cube turns</li>
+        <li>State snapping after every move</li>
+        <li>Undo, reset, scramble, and solve workflows</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>⚡ Built for algorithm speed</h3>
+      <p>
+        Rapid input should not freeze the experience. ApexCube buffers moves, adapts
+        animation speed, and stays responsive during aggressive formula execution.
+      </p>
+      <ul>
+        <li>Non-blocking move queue</li>
+        <li>Automatic speed-up when the queue grows</li>
+        <li>Instant mode for high-speed drilling</li>
+        <li>Formula history and copy workflow</li>
+      </ul>
+    </td>
+    <td width="50%">
+      <h3>🌌 Designed like a product</h3>
+      <p>
+        The interface is built with a cinematic cyber-cosmic style: glass panels, neon
+        accents, immersive overlays, and high-contrast cube materials.
+      </p>
+      <ul>
+        <li>Cosmic aurora background</li>
+        <li>Glassmorphism dashboard</li>
+        <li>Neon cube aura</li>
+        <li>Particle burst effects</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
 ---
 
-### 🌌 Premium visual system
+## 🧩 Feature Matrix
 
-The project is designed with a cyber-cosmic visual language.
-
-- Glassmorphism control panels
-- Neon accent lighting
-- Cosmic grid background
-- Floating cube aura
-- Particle burst effects
-- High-contrast sticker palette
-- Smooth camera orbiting
-- Responsive side panel layout
-
-It is built to look like a product, not just a demo.
+| Area | Capability |
+| --- | --- |
+| Cube orders | 3×3, 4×4, 5×5 |
+| Turn types | Outer, inner, wide, three-layer wide, middle, whole-cube |
+| Interaction | Mouse drag, touch drag, sticker raycasting, keyboard shortcuts |
+| Algorithms | Standard cube notation parser and formula execution |
+| Timer | Hold-to-ready flow, fullscreen timer, PB, Ao5, Ao12, TPS |
+| Smart solve | Kociemba-style 3×3 solve sequence and guided progression |
+| Visuals | WebGL scene, glass UI, neon aura, particle bursts, cosmic grid |
+| Storage | Local solve records and personal stats through `localStorage` |
+| Build | Zero build step, pure HTML / CSS / JavaScript |
 
 ---
 
 ## 🛠️ Quick Start
 
-### Option 1 — Open directly
-
-Clone the repository and open `index.html` in your browser.
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/muskke/apexcube-cosmic-lab.git
 cd apexcube-cosmic-lab
-open index.html
 ```
 
-On Windows, double-click `index.html` or open it with your browser manually.
+### 2. Open directly
 
----
+Open `index.html` in your browser.
 
-### Option 2 — Run with a local static server
+```txt
+index.html
+```
 
-Recommended when testing CDN scripts, browser policies, or deployment behavior.
+### 3. Or run a local static server
+
+Recommended when testing CDN behavior, browser policies, or GitHub Pages deployment.
 
 ```bash
 python3 -m http.server 5173
@@ -211,54 +222,34 @@ http://localhost:5173
 
 ---
 
-## 📦 Tech Stack
-
-| Layer | Technology |
-| --- | --- |
-| Rendering | Three.js / WebGL |
-| Interaction | Pointer Events + Raycasting |
-| Cube Model | Cubie-based physical state |
-| Animation | requestAnimationFrame |
-| Solver | Kociemba algorithm |
-| UI | HTML / CSS / Vanilla JavaScript |
-| Persistence | localStorage |
-
-No build step.  
-No framework lock-in.  
-Just open, run, and play.
-
----
-
 ## 🎮 Controls
 
-### Mouse / Touch
+### Mouse and touch
 
-| Action | Behavior |
+| Action | Result |
 | --- | --- |
-| Drag empty space | Rotate camera view |
+| Drag empty space | Orbit the camera |
 | Drag a sticker | Turn the corresponding cube layer |
-| Scroll wheel | Zoom in / out |
+| Scroll wheel | Zoom in or out |
 | Touch drag | Mobile-friendly cube interaction |
 
 ### Keyboard
 
-| Input | Move |
+| Input | Result |
 | --- | --- |
-| `U D L R F B` | Outer-layer moves |
-| `Shift + U/D/L/R/F/B` | Inverse outer-layer moves |
-| `Alt + U/D/L/R/F/B` | Inner-layer moves |
-| `Ctrl + U/D/L/R/F/B` | Wide moves |
-| `Ctrl + Alt + U/D/L/R/F/B` | 3-layer wide moves on 5×5 |
-| `M E S` | Middle-layer moves |
+| `U D L R F B` | Outer-layer turns |
+| `Shift + U/D/L/R/F/B` | Inverse outer-layer turns |
+| `Alt + U/D/L/R/F/B` | Inner-layer turns |
+| `Ctrl + U/D/L/R/F/B` | Double-layer wide turns |
+| `Ctrl + Alt + U/D/L/R/F/B` | Three-layer wide turns on 5×5 |
+| `M E S` | Middle-layer turns |
 | `X Y Z` | Whole-cube rotations |
-| `Space` | Timer hold/start/stop |
+| `Space` | Timer prepare / start / stop |
 | `Esc` | Cancel timer |
 
 ---
 
-## 🧩 Supported Notation
-
-ApexCube understands common cube notation, including:
+## 🧠 Supported Notation
 
 ```txt
 U D L R F B
@@ -271,70 +262,112 @@ M E S
 X Y Z
 ```
 
-The parser is designed to support both normal practice input and high-order cube operations.
+Example algorithms:
+
+```txt
+R U R' U'
+F R U R' U' F'
+Rw U Rw' U'
+M E S
+X Y Z
+```
+
+---
+
+## 🧱 Tech Stack
+
+<div align="center">
+
+| Layer | Technology |
+| --- | --- |
+| 3D rendering | **Three.js / WebGL** |
+| Interaction | **Pointer Events / Raycasting** |
+| Cube state | **Cubie-based physical model** |
+| Animation | **requestAnimationFrame** |
+| Solver | **Kociemba algorithm** |
+| Interface | **HTML / CSS / Vanilla JavaScript** |
+| Persistence | **localStorage** |
+
+</div>
+
+<br />
+
+<div align="center">
+
+### No build step. No framework lock-in. Just open, run, and play.
+
+</div>
 
 ---
 
 ## 🏗️ Architecture
 
-ApexCube is organized around several core modules:
-
 ```txt
-index.html
-├── Scene initialization
-├── Cube construction
+ApexCube Cosmic Lab
+├── Scene System
+│   ├── Camera
+│   ├── Lighting
+│   ├── Renderer
+│   ├── Cosmic dust
+│   └── Neon aura
+├── Cube Engine
 │   ├── Cubie generation
 │   ├── Sticker generation
-│   └── Physical grid state
-├── Move parser
-│   ├── Standard moves
-│   ├── Inner moves
-│   ├── Wide moves
-│   ├── Middle moves
-│   └── Whole-cube rotations
-├── Move queue
-│   ├── Buffered execution
-│   ├── Animation speed control
-│   └── Post-move state updates
-├── Pointer interaction
+│   ├── Physical grid state
+│   └── State snapping
+├── Move System
+│   ├── Standard turns
+│   ├── Inner-layer turns
+│   ├── Wide-layer turns
+│   ├── Middle-layer turns
+│   ├── Whole-cube rotations
+│   └── Notation parser
+├── Interaction Layer
 │   ├── Raycasting
 │   ├── Sticker picking
 │   ├── Local drag resolution
 │   └── Layer mapping
-├── Timer system
-├── Smart solve guide
-└── UI dashboard
+├── Speed Layer
+│   ├── Non-blocking queue
+│   ├── Adaptive acceleration
+│   ├── Move history
+│   └── Undo workflow
+├── Practice Layer
+│   ├── WCA-style timer
+│   ├── PB / Ao5 / Ao12
+│   ├── TPS statistics
+│   └── Recent solve records
+└── Smart Solve Layer
+    ├── Kociemba pipeline
+    ├── Solve sequence
+    ├── Guided move steps
+    └── Progress feedback
 ```
 
-### Design principle
+---
 
-The core philosophy is:
+## 🧭 Roadmap
 
-> **Visual polish should not come at the cost of physical consistency.**
-
-Every visible turn is resolved through a real cube-layer model, rather than being treated as a cosmetic animation only.
+- [ ] Full NxN support beyond 5×5
+- [ ] Custom sticker color themes
+- [ ] Refined mobile gesture physics
+- [ ] Import and export scramble states
+- [ ] Shareable solve replay links
+- [ ] Algorithm replay timeline
+- [ ] Sound effects and haptic feedback
+- [ ] Offline-first PWA mode
+- [ ] Advanced solver support for 4×4 and 5×5
+- [ ] Training modes for OLL, PLL, and parity cases
 
 ---
 
-## 🧪 Browser Support
-
-Recommended browsers:
-
-- Chrome latest
-- Edge latest
-- Safari latest
-- Firefox latest
-
-For best performance, use a browser with stable WebGL acceleration enabled.
-
----
-
-## 📁 Suggested Repository Structure
+## 📁 Recommended Repository Structure
 
 ```txt
 apexcube-cosmic-lab/
 ├── index.html
 ├── README.md
+├── README.zh-CN.md
 ├── LICENSE
 └── assets/
     ├── preview.png
@@ -343,38 +376,21 @@ apexcube-cosmic-lab/
 
 ---
 
-## 🧭 Roadmap
-
-Planned or potential future improvements:
-
-- [ ] Full NxN support beyond 5×5
-- [ ] Configurable color scheme
-- [ ] Mobile gesture refinement
-- [ ] Import / export scramble state
-- [ ] Shareable solve replay links
-- [ ] Replay timeline
-- [ ] Sound effects and haptic feedback
-- [ ] Offline-first PWA mode
-- [ ] Advanced solver support for 4×4 / 5×5
-- [ ] Training modes for OLL / PLL / parity cases
-
----
-
 ## 🤝 Contributing
 
 Contributions are welcome.
 
-You can help by:
+Great areas to improve:
 
-- Improving cube interaction accuracy
-- Optimizing rendering performance
-- Adding new notation support
-- Refining mobile controls
-- Improving the solving guide
-- Designing better visual assets
-- Reporting bugs with reproducible steps
+- Sticker-dragging accuracy
+- Rendering performance
+- Notation parsing
+- Mobile interaction quality
+- Smart solve guidance
+- Preview images and demo GIFs
+- Reproducible bug reports
 
-Before submitting a pull request, please keep the project style consistent: polished visuals, clean interactions, and no unnecessary build complexity.
+Please keep the project philosophy consistent: **premium visuals, precise interaction, lightweight structure, and no unnecessary build complexity.**
 
 ---
 
@@ -382,26 +398,33 @@ Before submitting a pull request, please keep the project style consistent: poli
 
 This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
 
-You are free to use, modify, and distribute this project under the terms of the GPL-3.0 license.
+You may use, modify, and distribute this project under the terms of the GPL-3.0 license.
 
 ---
 
-## 🌟 Acknowledgements
+## 🙏 Acknowledgements
 
-Built with:
+Built with and inspired by:
 
 - [Three.js](https://threejs.org/)
 - Kociemba two-phase solving algorithm
-- The speedcubing community
-- Everyone who believes a web demo can still feel premium
+- The global speedcubing community
+- Everyone who believes a browser demo can still feel like a premium product
 
 ---
 
 <div align="center">
 
-### If you like this project, consider giving it a ⭐.
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=180&section=footer&color=0:00E5A0,45:312E81,100:030712" alt="Footer Wave" />
 
-**ApexCube Cosmic Lab**  
-_Where algorithms, interaction, and cosmic aesthetics meet._
+## ⭐ If ApexCube Cosmic Lab feels impressive, consider giving it a Star.
+
+### _Where algorithms, interaction, and cosmic aesthetics meet inside the browser._
+
+<br />
+
+<a href="https://muskke.github.io/apexcube-cosmic-lab/" target="_blank">
+  <img src="https://img.shields.io/badge/Launch%20the%20Live%20Demo-00E5A0?style=for-the-badge&labelColor=030712&color=00E5A0" alt="Launch the Live Demo" />
+</a>
 
 </div>
