@@ -2,6 +2,73 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <script>
+    // Block Cloudflare Browser Insights / RUM beacon when this demo is hosted on
+    // GitHub Pages or opened locally. GitHub Pages has no /cdn-cgi/rum endpoint,
+    // so the beacon causes a harmless but noisy 405/CORS console error.
+    (function blockCloudflareRumBeacon() {
+      const isRumUrl = (url) => {
+        try {
+          const text = String(url && (url.url || url) || '');
+          return /\/cdn-cgi\/rum(?:\?|$)/i.test(text) ||
+                 /cloudflareinsights\.com\/beacon/i.test(text);
+        } catch (_) {
+          return false;
+        }
+      };
+
+      if (navigator.sendBeacon) {
+        const originalSendBeacon = navigator.sendBeacon.bind(navigator);
+        navigator.sendBeacon = function(url, data) {
+          if (isRumUrl(url)) return true;
+          return originalSendBeacon(url, data);
+        };
+      }
+
+      if (window.fetch) {
+        const originalFetch = window.fetch.bind(window);
+        window.fetch = function(input, init) {
+          if (isRumUrl(input)) {
+            return Promise.resolve(new Response(null, { status: 204, statusText: 'Blocked RUM beacon' }));
+          }
+          return originalFetch(input, init);
+        };
+      }
+
+      if (window.XMLHttpRequest) {
+        const originalOpen = XMLHttpRequest.prototype.open;
+        const originalSend = XMLHttpRequest.prototype.send;
+
+        XMLHttpRequest.prototype.open = function(method, url) {
+          this.__apexCubeBlockedRum = isRumUrl(url);
+          if (this.__apexCubeBlockedRum) {
+            // Use a harmless local data URL so send() never reaches /cdn-cgi/rum.
+            return originalOpen.call(this, 'GET', 'data:text/plain,blocked-rum-beacon', true);
+          }
+          return originalOpen.apply(this, arguments);
+        };
+
+        XMLHttpRequest.prototype.send = function(body) {
+          if (this.__apexCubeBlockedRum) {
+            try { return originalSend.call(this, null); } catch (_) { return; }
+          }
+          return originalSend.apply(this, arguments);
+        };
+      }
+
+      const removeInjectedBeaconScripts = () => {
+        document.querySelectorAll('script[src*="cloudflareinsights.com/beacon"], script[data-cf-beacon]')
+          .forEach((node) => node.remove());
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', removeInjectedBeaconScripts, { once: true });
+      } else {
+        removeInjectedBeaconScripts();
+      }
+    })();
+  </script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>ApexCube Cosmic Lab · 巅峰级寰宇魔方实验室</title>
   <meta name="description" content="一个为魔方职业选手与极客打造的巅峰 3D 魔方模拟器：高档宇宙美学、WCA 计时器、PB Ao5/Ao12 成绩看板、自适应无感按键队列、3D 贴纸手势射线拾取层旋转、Kociemba 智能求解与分步发光箭头教学。">
