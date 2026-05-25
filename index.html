@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>ApexCube Cosmic Lab · 巅峰级寰宇魔方实验室</title>
   <meta name="description" content="一个为魔方职业选手与极客打造的巅峰 3D 魔方模拟器：高档宇宙美学、WCA 计时器、PB Ao5/Ao12 成绩看板、自适应无感按键队列、3D 贴纸手势射线拾取层旋转、Kociemba 智能求解与分步发光箭头教学。">
   <style>
@@ -1395,14 +1395,15 @@
       shape.quadraticCurveTo(x, y, x + radius, y);
 
       const geo = new THREE.ShapeGeometry(shape, 8);
-      const mat = new THREE.MeshBasicMaterial({
+      const mat = new THREE.MeshPhysicalMaterial({
         color: hexColor,
         roughness: 0.18,
         metalness: 0.05,
         clearcoat: 1.0,
         clearcoatRoughness: 0.1,
-        emissive: hexColor,
-        emissiveIntensity: 0.08  // 科技荧光感
+        emissive: new THREE.Color(hexColor),
+        emissiveIntensity: 0.08, // 科技荧光感
+        side: THREE.FrontSide
       });
 
       const mesh = new THREE.Mesh(geo, mat);
@@ -3108,7 +3109,6 @@
     });
 
   </script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"7939e04a4baf43c8b86a560f74aac60e","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
